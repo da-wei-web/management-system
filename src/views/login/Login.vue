@@ -47,12 +47,13 @@
 
         // 登录验证成功
         if( status === 200 ) {
-          this.$message.success({message: msg, duration: 1000})
+          // localStore本地保存后端数据返回的token值, 并取名为token
+          localStorage.setItem('token', data.token)
 
-          // 三秒后跳转到首页
-          setTimeout(() => {
-            this.$router.push('/home')
-          }, 1000)
+          this.$message.success(msg)
+
+          // 跳转到首页
+          this.$router.push('/home')
         }else{
           // 失败警告信息
           this.$message.warning({message: msg, duration: 1000})
