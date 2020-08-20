@@ -50,6 +50,7 @@
           // localStore本地保存后端数据返回的token值, 并取名为token
           localStorage.setItem('token', data.token)
 
+          // 登录成功的提示信息
           this.$message.success(msg)
 
           // 跳转到首页
