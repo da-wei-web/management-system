@@ -1,9 +1,13 @@
 import Vue from 'vue'
 import App from './App.vue'
 
+
+import { 
+  Input, Button, Form, FormItem,
+  Message, Container, Header, Aside, Main
+} from 'element-ui'
 import 'assets/css/reset.css'
-import { Input, Button, Form, FormItem, Message } from 'element-ui'
-import 'element-ui/lib/theme-chalk/index.css';
+import 'element-ui/lib/theme-chalk/index.css'
 
 import router from './router'
 import store from './store'
@@ -18,6 +22,10 @@ Vue.use(Form)
 Vue.use(FormItem)
 Vue.use(Input)
 Vue.use(Button)
+Vue.use(Container)
+Vue.use(Header)
+Vue.use(Aside)
+Vue.use(Main)
 Vue.prototype.$message = Message
 
 Vue.config.productionTip = false

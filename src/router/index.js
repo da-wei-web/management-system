@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 
 // 路由懒加载
 const Login = () => import('views/login')
+const Home = () => import('views/home')
 
 Vue.use(VueRouter)
 
@@ -15,6 +16,11 @@ Vue.use(VueRouter)
       path: '/login',
       name: 'Login',
       component: Login
+    },
+    {
+      path: '/home',
+      name: 'Home',
+      component: Home
     }
   ]
 
