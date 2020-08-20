@@ -7,7 +7,7 @@
           <h2>电商后台管理系统</h2>
         </el-col>
         <el-col :span="2" class="col-item">
-          <el-button type="text" class="exit">退出</el-button>
+          <el-button type="text" class="exit" @click="exit()">退出</el-button>
         </el-col>
       </el-row>
     </el-header>
@@ -20,7 +20,25 @@
 
 <script>
   export default {
-    name: 'Home'
+    name: 'Home',
+    methods: {
+      // 退出
+      exit() {
+        this.$confirm('您即将退出平台, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+        .then(() => {
+          this.$router.replace('/login')
+          this.$message({
+            type: 'success',
+            message: '退出成功!'
+          })
+        })
+        .catch(() => {})
+      }
+    }
   }
 </script>
 
@@ -66,5 +84,4 @@
       background-color: #DCF1FC;
     }
   }
-  
 </style>

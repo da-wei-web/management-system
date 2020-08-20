@@ -5,7 +5,7 @@ import App from './App.vue'
 import { 
   Input, Button, Form, FormItem,
   Message, Container, Header, Aside,
-  Main, Row, Col
+  Main, Row, Col, MessageBox
 } from 'element-ui'
 import 'assets/css/reset.css'
 import 'element-ui/lib/theme-chalk/index.css'
@@ -29,6 +29,7 @@ Vue.use(Aside)
 Vue.use(Main)
 Vue.use(Row)
 Vue.use(Col)
+Vue.prototype.$confirm = MessageBox.confirm;
 Vue.prototype.$message = Message
 
 Vue.config.productionTip = false
