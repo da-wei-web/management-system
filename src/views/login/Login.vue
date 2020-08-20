@@ -32,31 +32,64 @@
       }
     },
     methods: {
-      handleLogin(userData) {
-        login(userData).then(res => {
-          const {
-            data, // 用户的账号信息
-            meta: { msg, status } // 解构赋值
-          } = res
+      // 网络请求
+      async handleLogin(userData) {
+        // 调用login函数发送请求
+        const res = await login(userData)
 
-          // 登录验证成功
-          if( status === 200 ) {
-            // this.$router.push('/home')
-            this.$message.success(msg);
-          }else{
-            // 错误信息
-            this.$message.error(msg);
-          }
+        // 请求失败
+        if(!res) return new Error(res)
+
+        const {
+          data, // 用户的账号信息
+          meta: { msg, status } // 解构赋值
+        } = res
+
+        // 登录验证成功
+        if( status === 200 ) {
+          this.$message.success({message: msg, duration: 1000})
+
+          // 三秒后跳转到首页
+          setTimeout(() => {
+            this.$router.push('/home')
+          }, 1000)
+        }else{
+          // 失败警告信息
+          this.$message.warning({message: msg, duration: 1000})
+        }
+
+
+        // login(userData).then(res => {
+        //   const {
+        //     data, // 用户的账号信息
+        //     meta: { msg, status } // 解构赋值
+        //   } = res
+
+        //   // 登录验证成功
+        //   if( status === 200 ) {
+        //     this.$message.success({message: msg, duration: 1000})
+
+        //     // 三秒后跳转到首页
+        //     setTimeout(() => {
+        //       this.$router.push('/home')
+        //     }, 1000)
+        //   }else{
+        //     // 错误信息
+        //     this.$message.warning({message: msg, duration: 1000})
+        //   }
           
-        }).catch(err => console.log(err))
+        // }).catch(err => console.log(err))
+
       }
 
-      // 调用插件
-      // handleLogin() {
-      //   this.$http.post('/login', this.formData).then(res =>{
-      //     console.log(res.data)
-      //   })
-      // }
+      // 调用插件发送请求
+      /*
+       * handleLogin() {
+          this.$http.post('/login', this.formData).then(res =>{
+            console.log(res.data)
+          })
+        }
+       */
     }
   }
 </script>
