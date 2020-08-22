@@ -37,7 +37,7 @@ Vue.use(MenuItem)
 Vue.use(Card)
 Vue.use(Breadcrumb)
 Vue.use(BreadcrumbItem)
-
+Vue.use(Input)
 Vue.prototype.$confirm = MessageBox.confirm;
 Vue.prototype.$message = Message
 
