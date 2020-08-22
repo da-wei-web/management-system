@@ -35,7 +35,6 @@
 
       // if(!token) this.$router.push('/login')
 
-
     },
     methods: {
       // 退出
@@ -46,7 +45,13 @@
           type: 'warning'
         })
         .then(() => {
+          // 清楚token
+          localStorage.clear()
+
+          // 跳转到登录页
           this.$router.replace('/login')
+
+          // 成功的提示信息
           this.$message({
             type: 'success',
             message: '退出成功!'
