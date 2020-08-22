@@ -12,15 +12,22 @@
       </el-row>
     </el-header>
     <el-container>
-      <el-aside width="200px" class="aside">Aside</el-aside>
+      <el-aside width="200px" class="aside">
+        <!-- 需大写 -->
+        <Menu></Menu>
+      </el-aside>
       <el-main class="main">Main</el-main>
     </el-container>
   </el-container>
 </template>
 
 <script>
+  import Menu from './childComs/Menu'
   export default {
     name: 'Home',
+    components: {
+      Menu
+    },
     methods: {
       // 退出
       exit() {
