@@ -11,14 +11,14 @@
       <el-col :span="24">
         <el-input 
           :clearable="true"
-          @clear="_getUsersList(message, pagenum, pagesize)"
+          @clear="getUsersList(message, pagenum, pagesize)"
           placeholder="用户名" 
           v-model="message" 
           class="input-with-select">
           <el-button 
             slot="append" 
             icon="el-icon-search" 
-            @click="message === '' ? warning() : _getUsersList(message, pagenum, pagesize)">
+            @click="message === '' ? warning() : getUsersList(message, pagenum, pagesize)">
           </el-button>
         </el-input>
         <el-button type="success" class="add-user">添加用户</el-button>
@@ -78,25 +78,25 @@
       }
     },
     created() {
-      this._getUsersList(this.message, this.pagenum, this.pagesize)
+      this.getUsersList(this.message, this.pagenum, this.pagesize)
     },
     methods: {
       // 事件处理
       // 改变一页显示的数据量
       handleSizeChange(val) {
         this.pagesize = val
-        this._getUsersList(this.message, this.pagenum, this.pagesize)
+        this.getUsersList(this.message, this.pagenum, this.pagesize)
         console.log(`每页 ${val} 条`);
       },
 
       // 改变当前页
       handleCurrentChange(val) {
         this.pagenum = val
-        this._getUsersList(this.message, this.pagenum, this.pagesize)
+        this.getUsersList(this.message, this.pagenum, this.pagesize)
         console.log(`当前页: ${val}`);
       },
 
-      // 提示
+      // 搜索框为空时点击搜索，触发该警告提示
       warning() {
         this.$message({
           type: 'warning',
@@ -105,7 +105,7 @@
       },
 
       // 网络请求
-      async _getUsersList(query, pagenum, pagesize) {
+      async getUsersList(query, pagenum, pagesize) {
         // 发送请求
         const res = await getUsersList(query, pagenum, pagesize)
         // 打印数据
