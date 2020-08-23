@@ -7,7 +7,9 @@ import {
   Message, Container, Header, Aside,
   Main, Row, Col, MessageBox, Menu,
   Submenu, MenuItem, Card, Breadcrumb,
-  BreadcrumbItem
+  BreadcrumbItem,
+  Table,
+  TableColumn
 } from 'element-ui'
 import 'assets/css/reset.css'
 import 'element-ui/lib/theme-chalk/index.css'
@@ -38,6 +40,8 @@ Vue.use(Card)
 Vue.use(Breadcrumb)
 Vue.use(BreadcrumbItem)
 Vue.use(Input)
+Vue.use(Table)
+Vue.use(TableColumn)
 Vue.prototype.$confirm = MessageBox.confirm;
 Vue.prototype.$message = Message
 
