@@ -39,13 +39,15 @@
       <el-table-column label="操作">
       </el-table-column>
     </el-table> -->
-    <Table :cell-name="titles"></Table>
+    <Table :cell-name="titles" :users-list="usersList"></Table>
   </el-card>
 </template>
 
 <script>
-
   import Table from 'components/content/Table'
+
+  import getUsersList from 'network/users'
+
   export default {
     name: 'Users',
     components: {
@@ -55,22 +57,46 @@
       return {
         // 搜索框用于双向绑定的数据
         message: '',
+        // 页数
+        pagenum: 1,
+        // 一页的数据量
+        pagesize: 2,
         // 表格表头数据
         titles: [
-          {value: '姓名', width: 100}, 
-          {value: '邮箱', width: 100}, 
-          {value: '电话', width: 100}, 
-          {value: '创建日期', width: 100}, 
-          {value: '用户状态', width: 100}, 
-          {value: '操作', width: 100}
-        ]
+          {value: '姓名', width: 100, column_value: "username"}, 
+          {value: '邮箱', width: 140, column_value: "email"}, 
+          {value: '电话', width: 120, column_value: "mobile"}, 
+          {value: '创建日期', width: 120, column_value: "create_time"}, 
+          {value: '用户状态', width: 60, column_value: "mg_state"}
+        ],
+        // 用户列表信息
+        usersList: [],
+        // 保存总共的数据数
+        total: 0
       }
     },
     created() {
-
+      this._getUsersList(this.message, this.pagenum, this.pagesize)
     },
     methods: {
+      async _getUsersList(query, pagenum, pagesize) {
+        // 发送请求
+        const res = await getUsersList(query, pagenum, pagesize)
+        // 打印数据
+        console.log(res)
 
+        // 处理数据
+        const {
+          meta: {mag, status},
+          data: {users, total}
+        } = res
+
+        if(status !== 200) return new Error('获取失败')
+
+        // 保存数据
+        this.usersList.push(...users)
+        this.total = total
+      }
     }
   }
 </script>
