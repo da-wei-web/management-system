@@ -4,7 +4,7 @@ import VueRouter from 'vue-router'
 // 路由懒加载
 const Login = () => import('views/login')
 const Home = () => import('views/home')
-const Users = () => import('../views/home/childComs/subpages/Users')
+const Users = () => import('views/home/childComs/subviews/Users')
 
 Vue.use(VueRouter)
 

@@ -54,7 +54,7 @@
           this.$message.success(msg)
 
           // 跳转到首页
-          this.$router.push('/home')
+          this.$router.push('/')
         }else{
           // 失败警告信息
           this.$message.warning({message: msg, duration: 1000})
