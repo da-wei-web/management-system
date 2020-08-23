@@ -75,14 +75,21 @@
     },
     methods: {
       // 事件处理
+      // 改变一页显示的数据量
       handleSizeChange(val) {
+        this.pagesize = val
+        this._getUsersList(this.message, this.pagenum, this.pagesize)
         console.log(`每页 ${val} 条`);
       },
+
+      // 改变当前页
       handleCurrentChange(val) {
+        this.pagenum = val
+        this._getUsersList(this.message, this.pagenum, this.pagesize)
         console.log(`当前页: ${val}`);
       },
 
-
+      // 网络请求
       async _getUsersList(query, pagenum, pagesize) {
         // 发送请求
         const res = await getUsersList(query, pagenum, pagesize)
