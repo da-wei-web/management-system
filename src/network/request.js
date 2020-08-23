@@ -4,7 +4,7 @@ export function request(options) {
   return new Promise((resolve, reject) => {
     // 1.创建axios实例
     const instance = axios.create({
-      baseURL: 'http://127.0.0.1:8888',
+      baseURL: 'http://127.0.0.1:8888/api/private/v1',
       timeout: 8000
     });
 

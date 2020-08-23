@@ -35,7 +35,7 @@
             name:'用户管理',
             icon: 'el-icon-location', 
             childTitles: [
-              {name:'用户列表', icon: 'el-icon-user-solid', router: 'home/users'}
+              {name:'用户列表', icon: 'el-icon-user-solid', router: '/users'}
             ]
           },
           {

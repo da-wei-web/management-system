@@ -33,9 +33,9 @@
     beforeCreate() {
       // 判断是否有token
       
-      // const token = localStorage.getItem('token')
+      const token = localStorage.getItem('token')
 
-      // if(!token) this.$router.push('/login')
+      if(!token) this.$router.push('/login')
 
     },
     methods: {
