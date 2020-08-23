@@ -1,4 +1,6 @@
 import axios from 'axios'
+// const token = localStorage.getItem('token')
+import { token } from 'common/untils/constant'
 
 export function request(options) {
   return new Promise((resolve, reject) => {
@@ -7,6 +9,9 @@ export function request(options) {
       baseURL: 'http://127.0.0.1:8888/api/private/v1',
       timeout: 8000
     });
+
+    // 设置请求头
+    instance.defaults.headers.common['Authorization'] = token;
 
     // 添加请求拦截器
     instance.interceptors.request.use(config => {
