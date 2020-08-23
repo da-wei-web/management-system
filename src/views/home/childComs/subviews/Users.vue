@@ -10,10 +10,16 @@
     <el-row class="search-row">
       <el-col :span="24">
         <el-input 
+          :clearable="true"
+          @clear="_getUsersList(message, pagenum, pagesize)"
           placeholder="用户名" 
           v-model="message" 
           class="input-with-select">
-          <el-button slot="append" icon="el-icon-search"></el-button>
+          <el-button 
+            slot="append" 
+            icon="el-icon-search" 
+            @click="message === '' ? warning() : _getUsersList(message, pagenum, pagesize)">
+          </el-button>
         </el-input>
         <el-button type="success" class="add-user">添加用户</el-button>
       </el-col>
@@ -37,6 +43,7 @@
     </el-pagination>
   </el-card>
 </template>
+
 
 <script>
   import Table from 'components/content/Table'
@@ -87,6 +94,14 @@
         this.pagenum = val
         this._getUsersList(this.message, this.pagenum, this.pagesize)
         console.log(`当前页: ${val}`);
+      },
+
+      // 提示
+      warning() {
+        this.$message({
+          type: 'warning',
+          message: '查询的内容不能为空!'
+        })
       },
 
       // 网络请求
