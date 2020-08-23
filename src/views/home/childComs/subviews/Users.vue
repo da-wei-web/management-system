@@ -9,37 +9,32 @@
     <!-- 搜索框 -->
     <el-row class="search-row">
       <el-col :span="24">
-        <el-input placeholder="用户名" 
-                  v-model="message" 
-                  class="input-with-select">
+        <el-input 
+          placeholder="用户名" 
+          v-model="message" 
+          class="input-with-select">
           <el-button slot="append" icon="el-icon-search"></el-button>
         </el-input>
         <el-button type="success" class="add-user">添加用户</el-button>
       </el-col>
     </el-row>
     <!-- 列表 -->
-    <!-- <el-table
-    style="width: 100%">
-      <el-table-column
-        label="#"
-        width="60">
-      </el-table-column>
-      <el-table-column
-        label="姓名"
-        width="180">
-      </el-table-column>
-      <el-table-column label="邮箱">
-      </el-table-column>
-      <el-table-column label="电话">
-      </el-table-column>
-      <el-table-column label="创建日期">
-      </el-table-column>
-      <el-table-column label="用户状态">
-      </el-table-column>
-      <el-table-column label="操作">
-      </el-table-column>
-    </el-table> -->
-    <Table :cell-name="titles" :users-list="usersList"></Table>
+    <Table 
+      :cell-name="titles"
+      :users-list="usersList" 
+      :message="message">
+    </Table>
+    <!-- 分页 -->
+    <el-pagination
+      class="pagination"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="pagenum"
+      :page-sizes="[2, 4, 6, 8]"
+      :page-size="pagesize"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total">
+    </el-pagination>
   </el-card>
 </template>
 
@@ -47,6 +42,7 @@
   import Table from 'components/content/Table'
 
   import getUsersList from 'network/users'
+  import { formDate } from 'common/untils/changeDate'
 
   export default {
     name: 'Users',
@@ -67,7 +63,6 @@
           {value: '邮箱', width: 140, column_value: "email"}, 
           {value: '电话', width: 120, column_value: "mobile"}, 
           {value: '创建日期', width: 120, column_value: "create_time"}, 
-          {value: '用户状态', width: 60, column_value: "mg_state"}
         ],
         // 用户列表信息
         usersList: [],
@@ -79,6 +74,15 @@
       this._getUsersList(this.message, this.pagenum, this.pagesize)
     },
     methods: {
+      // 事件处理
+      handleSizeChange(val) {
+        console.log(`每页 ${val} 条`);
+      },
+      handleCurrentChange(val) {
+        console.log(`当前页: ${val}`);
+      },
+
+
       async _getUsersList(query, pagenum, pagesize) {
         // 发送请求
         const res = await getUsersList(query, pagenum, pagesize)
@@ -87,14 +91,27 @@
 
         // 处理数据
         const {
-          meta: {mag, status},
+          meta: {msg, status},
           data: {users, total}
         } = res
 
         if(status !== 200) return new Error('获取失败')
 
+        // 日期格式处理
+        const newUsers = []
+        users.map(item => {
+          // 时间变为毫秒
+          let date = new Date(item.create_time * 1000)
+
+          // 转换日期格式并替换掉create_time中的原始数据
+          item.create_time = formDate(date, 'yyyy-MM-dd')
+          
+          // 返回新的数组
+          return newUsers.push(item)
+        })
+        
         // 保存数据
-        this.usersList.push(...users)
+        this.usersList = newUsers
         this.total = total
       }
     }
@@ -107,7 +124,7 @@
     height: 100%;
 
     .search-row {
-      margin-top: 20px;
+      margin: 20px 0;
 
       .input-with-select {
         width: 400px;
@@ -117,6 +134,10 @@
       .add-user {
         margin-left: 10px;
       }
+    }
+
+    .pagination {
+      margin-top: 10px;
     }
 
   }

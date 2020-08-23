@@ -7,12 +7,18 @@
                      :label="item.value"
                      :prop="item.column_value">
     </el-table-column>
+    <el-table-column label="用户状态" width="120">
+      <template slot-scope="scope">
+        <el-switch v-model="scope.row.mg_state"></el-switch>
+      </template>
+    </el-table-column>
     <el-table-column label="操作" width="160">
       <template slot-scope="scope">
         <el-button
           size="mini"
           icon="el-icon-edit" 
           circle
+          plain
           type="primary"
           @click="handleEdit(scope.$index, scope.row)">
         </el-button>
@@ -21,6 +27,15 @@
           type="danger"
           icon="el-icon-delete" 
           circle
+          plain
+          @click="handleDelete(scope.$index, scope.row)">
+        </el-button>
+        <el-button
+          size="mini"
+          type="danger"
+          icon="el-icon-check" 
+          circle
+          plain
           @click="handleDelete(scope.$index, scope.row)">
         </el-button>
       </template>
@@ -28,8 +43,7 @@
   </el-table>
 </template>
 
-
-<script>
+<script>  
   export default {
     name: 'Table',
     props: {
@@ -42,7 +56,8 @@
       usersList: {
         type: Array,
         default: []
-      }
+      },
+      message: ''
     }
   }
 </script>
