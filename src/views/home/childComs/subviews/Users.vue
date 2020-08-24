@@ -49,7 +49,6 @@
     <Dialog 
       :dialog-form-visible="dialogFormVisibleAdd"
       formLabelWidth="120"
-      :form-content="formContent"
       :form="form"
       name="添加用户"
       @cancelAddUser="closeAddUserForm"
@@ -62,7 +61,7 @@
   import Table from 'components/content/Table'
   import Dialog from 'components/common/Dialog'
 
-  import { getUsersList } from 'network/users'
+  import { getUsersList, addUser } from 'network/users'
   import { formDate } from 'common/untils/changeDate'
 
   export default {
@@ -97,26 +96,26 @@
           username: '',
           password: '',
           email: '',
-          mobile: ''
+          mobile: '',
+          formContent: [
+            {
+              item_en_title: 'username',  // 用于绑定表单控件中的v-model
+              item_cn_title: '用户名'     // 用于显示表单控件的类型
+            },
+            {
+              item_en_title: 'password', 
+              item_cn_title: '密码'
+            },
+            {
+              item_en_title: 'email', 
+              item_cn_title: '邮箱'
+            },
+            {
+              item_en_title: 'mobile', 
+              item_cn_title: '手机号'
+            }
+          ]
         },
-        formContent: [
-          {
-            item_en_title: 'username',  // 用于绑定表单控件中的v-model，与上面的form联合使用
-            item_cn_title: '用户名'     // 用于显示表单控件的类型
-          },
-          {
-            item_en_title: 'passwrd', 
-            item_cn_title: '密码'
-          },
-          {
-            item_en_title: 'email', 
-            item_cn_title: '邮箱'
-          },
-          {
-            item_en_title: 'mobile', 
-            item_cn_title: '手机号'
-          }
-        ]
       }
     },
     created() {
@@ -147,8 +146,13 @@
       },
 
       // 关闭对话框
-      closeAddUserForm() {
-        this.dialogFormVisibleAdd = false
+      closeAddUserForm(status) {
+        if(status) {
+          this.addOneUser(this.form)
+          this.dialogFormVisibleAdd = false
+        }else{
+          this.dialogFormVisibleAdd = false
+        }
       },
       
       // 打开对话框
@@ -157,6 +161,11 @@
       },
 
       // 网络请求
+      async addOneUser(userData) {
+        console.log('添加用户')
+        const res = await addUser(userData)
+        console.log(res)
+      },
 
       // 获取用户列表
       async getUsersLt(query, pagenum, pagesize) {

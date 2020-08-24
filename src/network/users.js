@@ -1,6 +1,6 @@
 import { request } from './request'
 
-export default function getUsersList(query, pagenum, pagesize) {
+export function getUsersList(query, pagenum, pagesize) {
   return request({
     url: '/users',
     params: {
@@ -10,3 +10,13 @@ export default function getUsersList(query, pagenum, pagesize) {
     }
   })
 }
+
+// 添加用户
+export function addUser(data) {
+  return request({
+    url: '/users',
+    method: "post",
+    data
+  })
+}
+
