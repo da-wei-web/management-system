@@ -11,17 +11,21 @@
       <el-col :span="24">
         <el-input 
           :clearable="true"
-          @clear="getUsersList(message, pagenum, pagesize)"
+          @clear="getUsersLt(message, pagenum, pagesize)"
           placeholder="用户名" 
           v-model="message" 
           class="input-with-select">
           <el-button 
             slot="append" 
             icon="el-icon-search" 
-            @click="message === '' ? warning() : getUsersList(message, pagenum, pagesize)">
+            @click="message === '' ? warning() : getUsersLt(message, pagenum, pagesize)">
           </el-button>
         </el-input>
-        <el-button type="success" class="add-user">添加用户</el-button>
+        <el-button 
+          type="success" 
+          class="add-user"
+          @click="openAddUserForm">添加用户
+        </el-button>
       </el-col>
     </el-row>
     <!-- 列表 -->
@@ -41,20 +45,31 @@
       layout="total, sizes, prev, pager, next, jumper"
       :total="total">
     </el-pagination>
+    <!-- 对话框 -->
+    <Dialog 
+      :dialog-form-visible="dialogFormVisibleAdd"
+      formLabelWidth="120"
+      :form-content="formContent"
+      :form="form"
+      name="添加用户"
+      @cancelAddUser="closeAddUserForm"
+      @openAddUser="openAddUserForm">
+    </Dialog>
   </el-card>
 </template>
 
-
 <script>
   import Table from 'components/content/Table'
+  import Dialog from 'components/common/Dialog'
 
-  import getUsersList from 'network/users'
+  import { getUsersList } from 'network/users'
   import { formDate } from 'common/untils/changeDate'
 
   export default {
     name: 'Users',
     components: {
-      Table
+      Table,
+      Dialog
     },
     data() {
       return {
@@ -66,33 +81,60 @@
         pagesize: 2,
         // 表格表头数据
         titles: [
-          {value: '姓名', width: 100, column_value: "username"}, 
-          {value: '邮箱', width: 140, column_value: "email"}, 
-          {value: '电话', width: 120, column_value: "mobile"}, 
-          {value: '创建日期', width: 120, column_value: "create_time"}, 
+          {value: '姓名', width: 100, column_value: 'username'}, 
+          {value: '邮箱', width: 140, column_value: 'email'}, 
+          {value: '电话', width: 120, column_value: 'mobile'}, 
+          {value: '创建日期', width: 120, column_value: 'create_time'}, 
         ],
         // 用户列表信息
         usersList: [],
         // 保存总共的数据数
-        total: 0
+        total: 0,
+        // 对话框
+        dialogFormVisibleAdd: false,
+        // 添加用户
+        form: {
+          username: '',
+          password: '',
+          email: '',
+          mobile: ''
+        },
+        formContent: [
+          {
+            item_en_title: 'username', 
+            item_cn_title: '用户名'
+          },
+          {
+            item_en_title: 'passwrd', 
+            item_cn_title: '密码'
+          },
+          {
+            item_en_title: 'email', 
+            item_cn_title: '邮箱'
+          },
+          {
+            item_en_title: 'mobile', 
+            item_cn_title: '手机号'
+          }
+        ]
       }
     },
     created() {
-      this.getUsersList(this.message, this.pagenum, this.pagesize)
+      this.getUsersLt(this.message, this.pagenum, this.pagesize)
     },
     methods: {
       // 事件处理
       // 改变一页显示的数据量
       handleSizeChange(val) {
         this.pagesize = val
-        this.getUsersList(this.message, this.pagenum, this.pagesize)
+        this.getUsersLt(this.message, this.pagenum, this.pagesize)
         console.log(`每页 ${val} 条`);
       },
 
       // 改变当前页
       handleCurrentChange(val) {
         this.pagenum = val
-        this.getUsersList(this.message, this.pagenum, this.pagesize)
+        this.getUsersLt(this.message, this.pagenum, this.pagesize)
         console.log(`当前页: ${val}`);
       },
 
@@ -104,8 +146,20 @@
         })
       },
 
+      // 关闭对话框
+      closeAddUserForm() {
+        this.dialogFormVisibleAdd = false
+      },
+      
+      // 打开对话框
+      openAddUserForm() {
+        this.dialogFormVisibleAdd = true
+      },
+
       // 网络请求
-      async getUsersList(query, pagenum, pagesize) {
+
+      // 获取用户列表
+      async getUsersLt(query, pagenum, pagesize) {
         // 发送请求
         const res = await getUsersList(query, pagenum, pagesize)
         // 打印数据
@@ -161,6 +215,10 @@
     .pagination {
       margin-top: 10px;
     }
+
+    // .form-item {
+    //   margin-bottom: 15px;
+    // }
 
   }
 </style>
