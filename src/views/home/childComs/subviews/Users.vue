@@ -93,13 +93,14 @@
         dialogFormVisibleAdd: false,
         // 添加用户
         form: {
+          // 用于绑定表单控件中的v-model
           username: '',
           password: '',
           email: '',
           mobile: '',
           formContent: [
             {
-              item_en_title: 'username',  // 用于绑定表单控件中的v-model
+              item_en_title: 'username',  // 与上面的属性进行连用
               item_cn_title: '用户名'     // 用于显示表单控件的类型
             },
             {
@@ -162,9 +163,31 @@
 
       // 网络请求
       async addOneUser(userData) {
-        console.log('添加用户')
         const res = await addUser(userData)
-        console.log(res)
+
+        const {
+          meta: {msg, status}
+        } = res
+
+        // 请求成功
+        if(status === 201) {
+          this.$message.success(msg)
+
+          // 清空表单中的内容
+          for(let key in this.form) {
+            // 不破坏form中的结构
+            if(this.form.hasOwnProperty(key) && typeof this.form[key] !== 'object') {
+              // 仅给绑定v-model的对象属性重新赋值
+              this.form[key] = ''
+            }
+          }
+        }
+
+        // 请求失败
+        if(status === 400) {
+          this.$message.warning(msg)
+        } 
+
       },
 
       // 获取用户列表

@@ -29,10 +29,6 @@
         type: Boolean,
         default: false
       },
-      // formContent: {
-      //   type: Array,
-      //   default: []
-      // },
       form: {
         type: Object,
         default: {}
