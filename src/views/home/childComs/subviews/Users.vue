@@ -101,8 +101,8 @@
         },
         formContent: [
           {
-            item_en_title: 'username', 
-            item_cn_title: '用户名'
+            item_en_title: 'username',  // 用于绑定表单控件中的v-model，与上面的form联合使用
+            item_cn_title: '用户名'     // 用于显示表单控件的类型
           },
           {
             item_en_title: 'passwrd', 
