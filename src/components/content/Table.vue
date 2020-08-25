@@ -21,7 +21,7 @@
           circle
           plain
           type="primary"
-          @click="handleEdit(scope.$index, scope.row)">
+          @click="handleEdit(scope.row.id, scope.row.email, scope.row.mobile)">
         </el-button>
         <el-button
           size="mini"
@@ -61,9 +61,15 @@
       message: ''
     },
     methods: {
+      // 删除用户信息
       handleDelete(userId) {
         this.$emit('deleteOneUser', userId)
-      }
+      },
+
+      // 编辑用户信息
+      handleEdit(userId, userEmail, userMobile) {
+        this.$emit('openEditUserForm', userId, userEmail, userMobile)
+      } 
     }
   }
 </script>

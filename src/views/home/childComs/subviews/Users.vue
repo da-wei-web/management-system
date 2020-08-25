@@ -33,7 +33,8 @@
       :cell-name="titles"
       :users-list="usersList" 
       :message="message"
-      @deleteOneUser="deleteOneUser">
+      @deleteOneUser="deleteOneUser"
+      @openEditUserForm="openEditUserForm(arguments)">
     </Table>
     <!-- 分页 -->
     <el-pagination
@@ -46,15 +47,25 @@
       layout="total, sizes, prev, pager, next, jumper"
       :total="total">
     </el-pagination>
-    <!-- 对话框 -->
+    <!-- 添加用户对话框 -->
     <Dialog 
       :dialog-form-visible="dialogFormVisibleAdd"
       formLabelWidth="auto"
       :form="form"
       dialogWidth="35%"
       name="添加用户"
-      @cancelAddUser="closeAddUserForm"
-      @openAddUser="openAddUserForm">
+      @cancelDialog="closeAddUserForm"
+      @openDialog="openAddUserForm">
+    </Dialog>
+    <!-- 编辑用户对话框 -->
+    <Dialog 
+      :dialog-form-visible="dialogFormVisibleEdit"
+      formLabelWidth="auto"
+      :form="editForm"
+      dialogWidth="35%"
+      name="编辑用户"
+      @cancelDialog="closeEditUserForm"
+      :disabled="true">
     </Dialog>
   </el-card>
 </template>
@@ -63,7 +74,11 @@
   import Table from 'components/content/Table'
   import Dialog from 'components/common/Dialog'
 
-  import { getUsersList, addUser, deleteUser } from 'network/users'
+  import { 
+    getUsersList, addUser, 
+    deleteUser, editUser,
+    getUserById
+  } from 'network/users'
   import { formDate } from 'common/untils/changeDate'
 
   export default {
@@ -91,9 +106,9 @@
         usersList: [],
         // 保存总共的数据数
         total: 0,
-        // 对话框
+        // 添加用户对话框开关
         dialogFormVisibleAdd: false,
-        // 添加用户
+        // 添加用户格式
         form: {
           // 用于绑定表单控件中的v-model
           username: '',
@@ -119,6 +134,31 @@
             }
           ]
         },
+        // 编辑用户对话框开关
+        dialogFormVisibleEdit: false,
+        // 修改用户表单格式
+        editForm: {
+          username: '',
+          email: '',
+          mobile: '',
+          formContent: [
+            {
+              item_en_title: 'username',  // 与上面的属性进行连用
+              item_cn_title: '用户名',     // 用于显示表单控件的类型
+              item_disabled: true
+            },
+            {
+              item_en_title: 'email', 
+              item_cn_title: '邮箱'
+            },
+            {
+              item_en_title: 'mobile', 
+              item_cn_title: '手机号'
+            }
+          ]
+        },
+        // 保存根据id
+        id: null,
       }
     },
     created() {
@@ -162,9 +202,46 @@
           this.dialogFormVisibleAdd = false
         }
       },
-      
-     
 
+       // 删除用户
+      deleteOneUser(userId) {
+        this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(async () => {
+          const res = await deleteUser(userId)
+          
+          const {
+            meta: {msg, status}
+          } = res
+
+          if(status === 200) {
+            this.pagenum = 1
+            this.getUsersLt(this.message, this.pagenum, this.pagesize)
+            this.$message.success('删除成功')
+          }
+
+        }).catch(() => {
+          this.$message.info('已取消该操作')        
+        });
+      },
+
+      openEditUserForm(userMag) {
+        this.getOneUserById(userMag[0])
+        this.dialogFormVisibleEdit = true
+      },
+
+      closeEditUserForm(status) {
+        console.log("关闭")
+        if(status) {
+          this.editOneUser(this.id, this.editForm)
+          this.dialogFormVisibleEdit = false
+        }else{
+          this.dialogFormVisibleEdit = false
+        }
+      },
+      
       // 网络请求
       // 添加用户
       async addOneUser(userData) {
@@ -227,30 +304,37 @@
         this.usersList = newUsers
         this.total = total
       },
+      
+      // 根据id获取用户数据
+      async getOneUserById(userId) {
+        const res = await getUserById(userId)
+        console.log(res)
+        const {
+          data: {id, email, mobile, username},
+          meta: { status }
+        } = res
 
-       // 删除用户
-      deleteOneUser(userId) {
-        this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(async () => {
-          const res = await deleteUser(userId)
-          
-          const {
-            meta: {msg, status}
-          } = res
-
-          if(status === 200) {
-            this.pagenum = 1
-            this.getUsersLt(this.message, this.pagenum, this.pagesize)
-            this.$message.success('删除成功')
-          }
-
-        }).catch(() => {
-          this.$message.info('已取消该操作')        
-        });
+        if(status === 200) {
+          this.id = id
+          this.editForm.username = username
+          this.editForm.mobile = mobile
+          this.editForm.email = email
+        }
       },
+
+      // 编辑用户信息
+      async editOneUser(userId, userdata) {
+        const res = await editUser(userId, userdata) 
+        
+        const {
+          meta: {msg, status}
+        } = res
+
+        if(status === 200) {
+          this.getUsersLt(this.message, this.pagenum, this.pagesize)
+        }
+      }
+
     }
   }
 </script>

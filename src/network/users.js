@@ -28,3 +28,19 @@ export function deleteUser(id) {
   })
 }
 
+// 修改用户信息
+export function editUser(id, data) {
+  return request({
+    url: `/users/` + id,
+    method: 'put',
+    data
+  })
+}
+
+// 根据id查询用户信息
+export function getUserById(id) {
+  return request({
+    url: '/users/' + id
+  })
+}
+

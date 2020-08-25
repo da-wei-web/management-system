@@ -11,7 +11,7 @@
         class="form-item" 
         :label="item.item_cn_title" 
         :label-width="formLabelWidth">
-        <el-input v-model="form[item.item_en_title]" autocomplete="off"></el-input>
+        <el-input v-model="form[item.item_en_title]" :disabled="item.item_disabled ? disabled : false " autocomplete="off"></el-input>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -41,6 +41,10 @@
       dialogWidth: {
         type: String,
         default: '50%'
+      },
+      disabled: {
+        type: Boolean,
+        default: false
       }
     },
     data() {
@@ -52,12 +56,12 @@
       // 通过自定义事件，在父组件里修改dialogFormVisible的值
       // 关闭添加用户对话框
       cancel(status) {
-        this.$emit('cancelAddUser', status)
+        this.$emit('cancelDialog', status)
       },
 
       // 打开添加用户对话框
       open() {
-        this.$emit('openAddUser')
+        this.$emit('openDialog')
       }
     }
   }
