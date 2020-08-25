@@ -28,7 +28,7 @@ export function deleteUser(id) {
   })
 }
 
-// 修改用户信息
+// 编辑用户信息
 export function editUser(id, data) {
   return request({
     url: `/users/` + id,
@@ -44,3 +44,10 @@ export function getUserById(id) {
   })
 }
 
+// 修改用户状态
+export function modifyUserState(uId, type) {
+  return request({
+    url: `users/${uId}/state/${type}`,
+    method: 'put'
+  })
+}

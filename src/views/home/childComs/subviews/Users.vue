@@ -33,8 +33,10 @@
       :cell-name="titles"
       :users-list="usersList" 
       :message="message"
+      fbgcolor="#ff4949"
       @deleteOneUser="deleteOneUser"
-      @openEditUserForm="openEditUserForm(arguments)">
+      @openEditUserForm="openEditUserForm(arguments)"
+      @changeState="changeState(arguments)">
     </Table>
     <!-- 分页 -->
     <el-pagination
@@ -78,7 +80,7 @@
   import { 
     getUsersList, addUser, 
     deleteUser, editUser,
-    getUserById
+    getUserById, modifyUserState
   } from 'network/users'
   import { formDate } from 'common/untils/changeDate'
 
@@ -171,22 +173,19 @@
       handleSizeChange(val) {
         this.pagesize = val
         this.getUsersLt(this.message, this.pagenum, this.pagesize)
-        console.log(`每页 ${val} 条`);
+        // console.log(`每页 ${val} 条`);
       },
 
       // 改变当前页
       handleCurrentChange(val) {
         this.pagenum = val
         this.getUsersLt(this.message, this.pagenum, this.pagesize)
-        console.log(`当前页: ${val}`);
+        // console.log(`当前页: ${val}`);
       },
 
       // 搜索框为空时点击搜索，触发该警告提示
       warning() {
-        this.$message({
-          type: 'warning',
-          message: '查询的内容不能为空!'
-        })
+        this.$message.warning('查询的内容不能为空!')
       },
 
       // 打开添加用户对话框
@@ -245,6 +244,18 @@
           this.dialogFormVisibleEdit = false
         }
       },
+
+      // 修改用户状态
+      async changeState(userMsg) {
+        const res = await modifyUserState(userMsg[0], userMsg[1])
+        const {
+          meta: {msg, status}
+        } = res
+
+        if(status === 200) {
+          this.$message.success(msg)
+        }
+      },
       
       // 网络请求
       // 添加用户
@@ -280,9 +291,7 @@
       async getUsersLt(query, pagenum, pagesize) {
         // 发送请求
         const res = await getUsersList(query, pagenum, pagesize)
-        // 打印数据
-        console.log(res)
-
+        
         // 处理数据
         const {
           meta: {msg, status},

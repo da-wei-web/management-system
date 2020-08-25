@@ -10,7 +10,12 @@
     </el-table-column>
     <el-table-column label="用户状态" width="120">
       <template slot-scope="scope">
-        <el-switch v-model="scope.row.mg_state"></el-switch>
+        <el-switch 
+          v-model="scope.row.mg_state" 
+          @change="changeUserState(scope.row.id, scope.row.mg_state)"
+          :inactive-color="fbgcolor"
+          :active-color="tbgcolor">
+        </el-switch>
       </template>
     </el-table-column>
     <el-table-column label="操作" width="160">
@@ -58,7 +63,14 @@
         type: Array,
         default: []
       },
-      message: ''
+      tbgcolor: {
+        type: String,
+        default: '#409EFF'
+      },
+      fbgcolor: {
+        type: String,
+        default: '#C0CCDA'
+      }
     },
     methods: {
       // 删除用户信息
@@ -69,7 +81,12 @@
       // 编辑用户信息
       handleEdit(userId, userEmail, userMobile) {
         this.$emit('openEditUserForm', userId, userEmail, userMobile)
-      } 
+      },
+      
+      changeUserState(id, state) {
+        this.$emit('changeState', id, state)
+      }
+
     }
   }
 </script>
