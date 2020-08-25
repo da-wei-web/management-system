@@ -32,7 +32,8 @@
     <Table 
       :cell-name="titles"
       :users-list="usersList" 
-      :message="message">
+      :message="message"
+      @deleteOneUser="deleteOneUser">
     </Table>
     <!-- 分页 -->
     <el-pagination
@@ -50,7 +51,7 @@
       :dialog-form-visible="dialogFormVisibleAdd"
       formLabelWidth="auto"
       :form="form"
-      width="35%"
+      dialogWidth="35%"
       name="添加用户"
       @cancelAddUser="closeAddUserForm"
       @openAddUser="openAddUserForm">
@@ -62,7 +63,7 @@
   import Table from 'components/content/Table'
   import Dialog from 'components/common/Dialog'
 
-  import { getUsersList, addUser } from 'network/users'
+  import { getUsersList, addUser, deleteUser } from 'network/users'
   import { formDate } from 'common/untils/changeDate'
 
   export default {
@@ -147,6 +148,11 @@
         })
       },
 
+      // 打开添加用户对话框
+      openAddUserForm() {
+        this.dialogFormVisibleAdd = true
+      },
+
       // 关闭对话框
       closeAddUserForm(status) {
         if(status) {
@@ -157,12 +163,10 @@
         }
       },
       
-      // 打开对话框
-      openAddUserForm() {
-        this.dialogFormVisibleAdd = true
-      },
+     
 
       // 网络请求
+      // 添加用户
       async addOneUser(userData) {
         const res = await addUser(userData)
 
@@ -222,7 +226,31 @@
         // 保存数据
         this.usersList = newUsers
         this.total = total
-      }
+      },
+
+       // 删除用户
+      deleteOneUser(userId) {
+        this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(async () => {
+          const res = await deleteUser(userId)
+          
+          const {
+            meta: {msg, status}
+          } = res
+
+          if(status === 200) {
+            this.pagenum = 1
+            this.getUsersLt(this.message, this.pagenum, this.pagesize)
+            this.$message.success('删除成功')
+          }
+
+        }).catch(() => {
+          this.$message.info('已取消该操作')        
+        });
+      },
     }
   }
 </script>

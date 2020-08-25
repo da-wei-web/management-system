@@ -1,11 +1,12 @@
 <template>
   <el-table style="width: 100%" :data="usersList">
     <el-table-column label="#" width="60" type="index"></el-table-column>
-    <el-table-column v-for="(item, index) in cellName"
-                     :key="index" 
-                     :width="(item.width).toString()"
-                     :label="item.value"
-                     :prop="item.column_value">
+    <el-table-column 
+      v-for="(item, index) in cellName"
+      :key="index" 
+      :width="(item.width).toString()"
+      :label="item.value"
+      :prop="item.column_value">
     </el-table-column>
     <el-table-column label="用户状态" width="120">
       <template slot-scope="scope">
@@ -28,7 +29,7 @@
           icon="el-icon-delete" 
           circle
           plain
-          @click="handleDelete(scope.$index, scope.row)">
+          @click="handleDelete(scope.row.id)">
         </el-button>
         <el-button
           size="mini"
@@ -58,6 +59,11 @@
         default: []
       },
       message: ''
+    },
+    methods: {
+      handleDelete(userId) {
+        this.$emit('deleteOneUser', userId)
+      }
     }
   }
 </script>

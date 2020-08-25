@@ -20,3 +20,11 @@ export function addUser(data) {
   })
 }
 
+// 删除用户
+export function deleteUser(id) {
+  return request({
+    url: `/users/` + id,
+    method: 'delete'
+  })
+}
+
