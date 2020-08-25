@@ -1,6 +1,7 @@
 <template>
   <el-dialog :title="name" 
     :visible="dialogFormVisible" 
+    :width="width"
     @open="open" 
     @close="cancel">
     <el-form :model="form">
@@ -35,7 +36,11 @@
       },
       formLabelWidth: {
         type: String,
-        default: '100'
+        default: '100px'
+      },
+      width: {
+        type: String,
+        default: '50%'
       }
     },
     data() {

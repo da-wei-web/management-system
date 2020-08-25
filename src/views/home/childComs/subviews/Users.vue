@@ -48,8 +48,9 @@
     <!-- 对话框 -->
     <Dialog 
       :dialog-form-visible="dialogFormVisibleAdd"
-      formLabelWidth="120"
+      formLabelWidth="auto"
       :form="form"
+      width="35%"
       name="添加用户"
       @cancelAddUser="closeAddUserForm"
       @openAddUser="openAddUserForm">
