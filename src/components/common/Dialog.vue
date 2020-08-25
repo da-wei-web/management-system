@@ -36,7 +36,7 @@
       },
       formLabelWidth: {
         type: String,
-        default: '100px'
+        default: ''
       },
       dialogWidth: {
         type: String,

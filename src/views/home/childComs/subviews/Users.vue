@@ -49,8 +49,8 @@
     </el-pagination>
     <!-- 添加用户对话框 -->
     <Dialog 
+      ref="dialogAdd"
       :dialog-form-visible="dialogFormVisibleAdd"
-      formLabelWidth="auto"
       :form="form"
       dialogWidth="35%"
       name="添加用户"
@@ -59,8 +59,9 @@
     </Dialog>
     <!-- 编辑用户对话框 -->
     <Dialog 
+      ref="dialogEdit"
       :dialog-form-visible="dialogFormVisibleEdit"
-      formLabelWidth="auto"
+      formLabelWidth="100px"
       :form="editForm"
       dialogWidth="35%"
       name="编辑用户"
@@ -145,7 +146,7 @@
             {
               item_en_title: 'username',  // 与上面的属性进行连用
               item_cn_title: '用户名',     // 用于显示表单控件的类型
-              item_disabled: true
+              item_disabled: true // 用于input禁用
             },
             {
               item_en_title: 'email', 
@@ -233,7 +234,6 @@
       },
 
       closeEditUserForm(status) {
-        console.log("关闭")
         if(status) {
           this.editOneUser(this.id, this.editForm)
           this.dialogFormVisibleEdit = false
@@ -331,6 +331,7 @@
         } = res
 
         if(status === 200) {
+          this.$message.success(msg)
           this.getUsersLt(this.message, this.pagenum, this.pagesize)
         }
       }
