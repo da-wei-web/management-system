@@ -196,7 +196,7 @@
 
       // 关闭对话框
       closeAddUserForm(status) {
-        if(status) {
+        if(status) { // 点击确定后，发送请求
           this.addOneUser(this.form)
           this.dialogFormVisibleAdd = false
         }else{
@@ -228,13 +228,17 @@
         });
       },
 
+      // 打开编辑用户对话框
       openEditUserForm(userMag) {
+        // 根据用户id查找用户信息
         this.getOneUserById(userMag[0])
+
         this.dialogFormVisibleEdit = true
       },
 
+      // 关闭编辑用户对话框
       closeEditUserForm(status) {
-        if(status) {
+        if(status) { // 点击确定，发送编辑用户请求
           this.editOneUser(this.id, this.editForm)
           this.dialogFormVisibleEdit = false
         }else{
@@ -308,7 +312,7 @@
       // 根据id获取用户数据
       async getOneUserById(userId) {
         const res = await getUserById(userId)
-        console.log(res)
+
         const {
           data: {id, email, mobile, username},
           meta: { status }
@@ -333,6 +337,10 @@
         if(status === 200) {
           this.$message.success(msg)
           this.getUsersLt(this.message, this.pagenum, this.pagesize)
+        }
+
+        if(status === 500) {
+          this.$message.error(msg)
         }
       }
 
