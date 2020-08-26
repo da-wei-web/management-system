@@ -26,8 +26,6 @@
 <script>
   import Menu from './childComs/Menu'
 
-  import { token } from 'common/untils/constant'
-
   export default {
     name: 'Home',
     components: {
@@ -36,8 +34,9 @@
     beforeCreate() {
       // 判断是否有token
       // 获取token
-      // const token = localStorage.getItem('token')
+      const token = localStorage.getItem('token')
       // 判断token
+      // console.log(token)
       if(!token) this.$router.push('/login')
 
     },
