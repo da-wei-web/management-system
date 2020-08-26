@@ -72,7 +72,8 @@
       :disabled="true">
     </Dialog>
     <!-- 分配角色的对话框 -->
-    <el-dialog title="分配角色" :visible.sync="dialogFormVisibleMatch">
+    <el-dialog title="分配角色" 
+      :visible.sync="dialogFormVisibleMatch">
       <el-form :model="form">
         <el-form-item label="用户名">
           {{currentUsername}}
@@ -301,6 +302,8 @@
       async setRole() {
         // this.currentRid -> 角色rid   
         // this.id -> 用户id
+
+        // 当点击分配角色对话框确定按钮时发送设置用户角色请求
         const res = await setUserRole(this.id, this.currentRid)
         
         const {

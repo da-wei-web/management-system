@@ -17,7 +17,7 @@ export function setUserRole(id, rid) {
     url: `/users/${id}/role`,
     method: 'put',
     data: {
-      rid: rid
+      rid
     }
   })
 }
