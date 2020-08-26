@@ -1,5 +1,7 @@
 <template>
-  <el-menu @open="handleOpen" :unique-opened="true">
+  <el-menu @open="handleOpen"
+            :router="true" 
+            :unique-opened="true">
     <sub-menu v-for="(item, i) in titles" 
               :key="i" 
               :current-index="i + 1">
@@ -11,7 +13,7 @@
       <template v-slot:subtitle>
         <el-menu-item v-for="(childItem, childIndex) in item.childTitles"
                       :key="childIndex"
-                      :index="(i + 1 + '-' + childIndex + 1).toString()">
+                      :index="childItem.router">
                       <icon v-if="childItem.icon" :class-name="childItem.icon"></icon>
                       {{childItem.name}}
         </el-menu-item>
@@ -33,7 +35,7 @@
             name:'用户管理',
             icon: 'el-icon-location', 
             childTitles: [
-              {name:'用户列表', icon: 'el-icon-user-solid'}
+              {name:'用户列表', icon: 'el-icon-user-solid', router: '/users'}
             ]
           },
           {

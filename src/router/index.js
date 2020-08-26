@@ -4,23 +4,27 @@ import VueRouter from 'vue-router'
 // 路由懒加载
 const Login = () => import('views/login')
 const Home = () => import('views/home')
+const Users = () => import('views/home/childComs/subviews/Users')
 
 Vue.use(VueRouter)
 
   const routes = [
-    {
-      path: '/',
-      redirect: '/login'
-    },
     {
       path: '/login',
       name: 'Login',
       component: Login
     },
     {
-      path: '/home',
+      path: '/',
       name: 'Home',
-      component: Home
+      component: Home,
+      children: [
+        {
+          path: 'users',
+          name: 'Users',
+          component: Users
+        }
+      ]
     }
   ]
 

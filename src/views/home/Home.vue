@@ -16,13 +16,16 @@
         <!-- 需大写 -->
         <Menu></Menu>
       </el-aside>
-      <el-main class="main">Main</el-main>
+      <el-main class="main">
+        <router-view/>
+      </el-main>
     </el-container>
   </el-container>
 </template>
 
 <script>
   import Menu from './childComs/Menu'
+
   export default {
     name: 'Home',
     components: {
@@ -30,10 +33,11 @@
     },
     beforeCreate() {
       // 判断是否有token
-      
-      // const token = localStorage.getItem('token')
-
-      // if(!token) this.$router.push('/login')
+      // 获取token
+      const token = localStorage.getItem('token')
+      // 判断token
+      // console.log(token)
+      if(!token) this.$router.push('/login')
 
     },
     methods: {
