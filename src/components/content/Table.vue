@@ -38,11 +38,11 @@
         </el-button>
         <el-button
           size="mini"
-          type="danger"
+          type="success"
           icon="el-icon-check" 
           circle
           plain
-          @click="handleDelete(scope.$index, scope.row)">
+          @click="handleCheck(scope.row.id, scope.row.username)">
         </el-button>
       </template>
     </el-table-column>
@@ -74,8 +74,8 @@
     },
     methods: {
       // 删除用户信息
-      handleDelete(userId) {
-        this.$emit('deleteOneUser', userId)
+      handleDelete(id) {
+        this.$emit('deleteOneUser', id)
       },
 
       // 编辑用户信息
@@ -83,8 +83,14 @@
         this.$emit('openEditUserForm', userId, userEmail, userMobile)
       },
       
+      // 改变用户状态
       changeUserState(id, state) {
         this.$emit('changeState', id, state)
+      },
+
+      // 检查
+      handleCheck(id, username) {
+        this.$emit('openMatchDialog', id, username)
       }
 
     }

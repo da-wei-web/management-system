@@ -11,6 +11,17 @@ export function getUsersList(query, pagenum, pagesize) {
   })
 }
 
+export function setUserRole(id, rid) {
+  console.log(id, rid)
+  return request({
+    url: `/users/${id}/role`,
+    method: 'put',
+    data: {
+      rid: rid
+    }
+  })
+}
+
 // 添加用户
 export function addUser(data) {
   return request({

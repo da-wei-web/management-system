@@ -36,7 +36,8 @@
       fbgcolor="#ff4949"
       @deleteOneUser="deleteOneUser"
       @openEditUserForm="openEditUserForm(arguments)"
-      @changeState="changeState(arguments)">
+      @changeState="changeState(arguments)"
+      @openMatchDialog="openMatchDialog(arguments)">
     </Table>
     <!-- 分页 -->
     <el-pagination
@@ -70,6 +71,29 @@
       @cancelDialog="closeEditUserForm"
       :disabled="true">
     </Dialog>
+    <!-- 分配角色的对话框 -->
+    <el-dialog title="分配角色" :visible.sync="dialogFormVisibleMatch">
+      <el-form :model="form">
+        <el-form-item label="用户名">
+          {{currentUsername}}
+        </el-form-item>
+        <el-form-item label="角色">
+          <el-select v-model="currentRid" placeholder="请选择用户身份">
+            <el-option label="请选择" :value="-1"></el-option>
+            <el-option 
+              :label="item.roleName"
+              :value="item.id"
+              v-for="(item, index) in rolesList" 
+              :key="index">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisibleMatch = false">取 消</el-button>
+        <el-button type="primary" @click="setRole">确 定</el-button>
+      </div>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -78,10 +102,11 @@
   import Dialog from 'components/common/Dialog'
 
   import { 
-    getUsersList, addUser, 
-    deleteUser, editUser,
-    getUserById, modifyUserState
+    getUsersList, addUser, deleteUser, editUser,
+    getUserById, modifyUserState, setUserRole
   } from 'network/users'
+  import { getRoles } from 'network/role'
+
   import { formDate } from 'common/untils/changeDate'
 
   export default {
@@ -111,6 +136,8 @@
         total: 0,
         // 添加用户对话框开关
         dialogFormVisibleAdd: false,
+        // 表单的label宽度
+        formLabelWidth: '',
         // 添加用户格式
         form: {
           // 用于绑定表单控件中的v-model
@@ -162,6 +189,14 @@
         },
         // 保存根据id
         id: null,
+        // 保存用户角色
+        currentRid: -1,
+        // 角色列表
+        rolesList: [],
+        // 保存当前用户
+        currentUsername: null,
+        // 分配角色对话框开关
+        dialogFormVisibleMatch: false,
       }
     },
     created() {
@@ -245,6 +280,41 @@
         }
       },
 
+      // 打开分配角色对话框
+      openMatchDialog(userMsg) {
+        // userMsg[0] -> id  userMsg[1] -> username
+        
+        // 保存当前用户的用户名
+        this.currentUsername = userMsg[1]
+
+        // 获取角色列表
+        this.getRolesList()
+        
+        // 根据id获取当前用户的角色rid
+        this.getOneUserById(userMsg[0])
+
+        // 打开分配角色对话框
+        this.dialogFormVisibleMatch = true
+      },
+
+      // 设置用户角色
+      async setRole() {
+        // this.currentRid -> 角色rid   
+        // this.id -> 用户id
+        const res = await setUserRole(this.id, this.currentRid)
+        
+        const {
+          meta: {msg, status}
+        } = res
+        
+        if(status === 200) {
+          this.$message.success(msg)
+        }
+
+        // 关闭分配角色对话框
+        this.dialogFormVisibleMatch = false
+      },
+
       // 修改用户状态
       async changeState(userMsg) {
         const res = await modifyUserState(userMsg[0], userMsg[1])
@@ -321,14 +391,16 @@
       // 根据id获取用户数据
       async getOneUserById(userId) {
         const res = await getUserById(userId)
-
+        console.log(res)
         const {
-          data: {id, email, mobile, username},
+          data: {rid, id, email, mobile, username},
           meta: { status }
         } = res
 
+        console.log(id)
         if(status === 200) {
           this.id = id
+          this.currentRid = rid
           this.editForm.username = username
           this.editForm.mobile = mobile
           this.editForm.email = email
@@ -350,6 +422,21 @@
 
         if(status === 500) {
           this.$message.error(msg)
+        }
+      },
+
+      // 获取角色列表
+      async getRolesList() {
+        const res = await getRoles()
+        console.log(res)
+
+        const {
+          data,
+          meta: {msg, status}
+        } = res
+
+        if(status === 200) {
+          this.rolesList = data
         }
       }
 

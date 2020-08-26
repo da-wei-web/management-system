@@ -8,7 +8,7 @@ import {
   Main, Row, Col, MessageBox, Menu,
   Submenu, MenuItem, Card, Breadcrumb,
   BreadcrumbItem, Table, TableColumn, Switch,
-  Pagination, Dialog
+  Pagination, Dialog, Option, Select
 } from 'element-ui'
 import 'assets/css/reset.css'
 import 'element-ui/lib/theme-chalk/index.css'
@@ -44,6 +44,8 @@ Vue.use(TableColumn)
 Vue.use(Switch)
 Vue.use(Pagination)
 Vue.use(Dialog)
+Vue.use(Option)
+Vue.use(Select)
 Vue.prototype.$confirm = MessageBox.confirm;
 Vue.prototype.$message = Message
 
