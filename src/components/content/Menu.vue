@@ -24,8 +24,8 @@
 </template>
 
 <script>
-  import SubMenu from 'components/content/SubMenu'
-  import Icon from 'components/content/Icon'
+  import SubMenu from '../common/SubMenu'
+  import Icon from '../common/Icon'
   export default {
     name: 'Menu',
     data() {
@@ -42,7 +42,7 @@
             name:'权限管理', 
             icon: 'el-icon-location',
             childTitles: [
-              {name:'角色列表', icon: 'el-icon-user'},
+              {name:'角色列表', icon: 'el-icon-user', router: '/role'},
               {name:'权限列表', icon: 'el-icon-key'}
             ]
           },

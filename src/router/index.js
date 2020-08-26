@@ -4,7 +4,8 @@ import VueRouter from 'vue-router'
 // 路由懒加载
 const Login = () => import('views/login')
 const Home = () => import('views/home')
-const Users = () => import('views/home/childComs/subviews/Users')
+const Users = () => import('views/users')
+const Role = () => import('views/role')
 
 Vue.use(VueRouter)
 
@@ -23,6 +24,11 @@ Vue.use(VueRouter)
           path: 'users',
           name: 'Users',
           component: Users
+        },
+        {
+          path: 'role',
+          name: 'Role',
+          component: Role
         }
       ]
     }
