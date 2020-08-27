@@ -8,7 +8,7 @@
     <!-- 按钮 -->
     <el-row  class="add-role">
       <el-col>
-        <el-button type="primary">添加角色</el-button>
+        <el-button type="primary" @click="addRole">添加角色</el-button>
       </el-col>
     </el-row>
     <!-- 角色列表展示 -->
@@ -46,6 +46,8 @@
               </el-row>
             </el-col>
           </el-row>
+          <!-- 无权限提示 -->
+          <span v-if="scope.row.children.length === 0">未分配权限</span>
         </template>
       </el-table-column>
       <!-- 第二列-序号 -->
