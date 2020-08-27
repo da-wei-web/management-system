@@ -1,11 +1,10 @@
 <template>
   <el-card class="box-card">
     <!-- 面包屑 -->
-    <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>用户管理</el-breadcrumb-item>
-      <el-breadcrumb-item>活动列表</el-breadcrumb-item>
-    </el-breadcrumb>
+    <BreadCrumb 
+      :titles-list="titlesList" 
+      icon="el-icon-arrow-right">
+    </BreadCrumb>
     <!-- 搜索框 -->
     <el-row class="search-row">
       <el-col :span="24">
@@ -99,6 +98,7 @@
 </template>
 
 <script>
+  import BreadCrumb from 'components/common/BreadCrumb'
   import Table from 'components/content/Table'
   import Dialog from 'components/common/Dialog'
 
@@ -113,11 +113,25 @@
   export default {
     name: 'Users',
     components: {
+      BreadCrumb,
       Table,
       Dialog
     },
     data() {
       return {
+        // 面包屑数据列表
+        titlesList: [
+          {
+            value: '首页',
+            path: '/'
+          },
+          {
+            value: '用户管理',
+          },
+          {
+            value: '用户列表'
+          }
+        ],
         // 搜索框用于双向绑定的数据
         message: '',
         // 页数
