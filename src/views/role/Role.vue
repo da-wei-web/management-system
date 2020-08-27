@@ -8,7 +8,7 @@
     <!-- 按钮 -->
     <el-row  class="add-role">
       <el-col>
-        <el-button type="primary" @click="addRole">添加角色</el-button>
+        <el-button type="primary">添加角色</el-button>
       </el-col>
     </el-row>
     <!-- 角色列表展示 -->
@@ -23,7 +23,7 @@
             :key="index"
             :gutter="20">
             <el-col :span="4">
-              <el-tag closable class="m-tag">
+              <el-tag closable class="m-tag" @close="deleteRoleRight(scope.row, item.id)">
                 {{ item.authName }}
               </el-tag>
               <i class="el-icon-arrow-right"></i>
@@ -33,13 +33,13 @@
                 v-for="(tItem, tIndex) in item.children" 
                 :key="tIndex">
                 <el-col :span="4">
-                  <el-tag closable type="success" class="m-tag">
+                  <el-tag closable type="success" class="m-tag" @close="deleteRoleRight(scope.row, tItem.id)">
                     {{ tItem.authName }}
                   </el-tag>
                   <i class="el-icon-arrow-right"></i>
                 </el-col>
                 <el-col :span="20">
-                  <el-tag class="m-tag" type="warning" closable v-for="(endItem, endIndex) in tItem.children" :key="endIndex">
+                  <el-tag class="m-tag" type="warning" @close="deleteRoleRight(scope.row, endItem.id)" closable v-for="(endItem, endIndex) in tItem.children" :key="endIndex">
                     {{ endItem.authName }}
                   </el-tag>
                 </el-col>
@@ -101,7 +101,7 @@
 <script>
   import BreadCrumb from 'components/common/BreadCrumb'
 
-  import { getRoles } from 'network/role'
+  import { getRoles, deleteRight } from 'network/role'
   export default {
     name: 'Role',
     components: {
@@ -140,6 +140,25 @@
 
         if(status === 200) {
           this.rolesList = data
+        }
+      },
+
+      // 删除角色的指定权限
+      async deleteRoleRight(role, rightId) {
+        // role -> 角色， 传角色是为了局部更新单个角色权限的变化
+        const res = await deleteRight(role.id, rightId)
+
+        const {
+          data,  // 该角色剩余的所有权限
+          meta: {msg, status}
+        } = res
+
+        if(status === 200) {
+          this.$message.success(msg)
+          setTimeout(() => {
+            // 更新该角色的权限
+            role.children = data
+          }, 300)
         }
       }
     }
