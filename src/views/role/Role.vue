@@ -67,7 +67,7 @@
       </el-table-column>
       <!-- 第五列-操作 -->
       <el-table-column label="操作" width="160">
-        <template>
+        <template slot-scope="scope">
           <el-button
             size="mini"
             icon="el-icon-edit" 
@@ -90,11 +90,27 @@
             icon="el-icon-check" 
             circle
             plain
-            @click="handleCheck()">
+            @click="openRightDialog(scope.row)">
           </el-button>
         </template>
       </el-table-column>
     </el-table>
+    <el-dialog title="设置权限" :visible.sync="dialogFormVisibleRight">
+      <!-- 树形  default-expand-all 全部展开 default-checked-keys 选中对应id的权限 -->
+      <el-tree
+        :data="rightsList"
+        show-checkbox
+        node-key="id"
+        default-expand-all  
+        :default-checked-keys="rightsIdList"
+        :props="defaultProps">
+      </el-tree>
+
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisibleRight = false">取 消</el-button>
+        <el-button type="primary" @click="dialogFormVisibleRight = false">确 定</el-button>
+      </div>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -102,6 +118,7 @@
   import BreadCrumb from 'components/common/BreadCrumb'
 
   import { getRoles, deleteRight } from 'network/role'
+  import { getRights } from 'network/right'
   export default {
     name: 'Role',
     components: {
@@ -109,6 +126,7 @@
     },
     data() {
       return {
+        // 面包屑
         titlesList: [
           {
             value: '首页',
@@ -121,17 +139,51 @@
             value: '角色列表'
           }
         ],
-        rolesList: []
+        // 角色列表信息
+        rolesList: [],
+        // 打开设置权限对话框的开关
+        dialogFormVisibleRight: false,
+        // 权限列表
+        rightsList: [],
+        // 权限名和子列表
+        defaultProps: {
+          children: 'children',
+          label: 'authName'
+        },
+        // 保存所有权限的id
+        rightsIdList: []
       }
     },
     created() {
+      // 组件创建时立即请求角色列表信息
       this.getRolesList()
     },
     methods: {
+      // 打开设置权限对话框
+      openRightDialog(role) {
+        // 获取到的角色
+        console.log(role)
+
+        // 保存角色每一级权限对应的id
+        role.children.forEach((item, index) => { // 一级
+          this.rightsIdList.push(item.id)
+          item.children.forEach((tItem, tIndex) => { // 二级 (tItem -> twoItem)
+            this.rightsIdList.push(tItem.id)
+            tItem.children.forEach((endItem, endIndex) => { // 三级 (endItem -> 最后一级)
+              this.rightsIdList.push(endItem.id)
+            })
+          })
+        })
+
+        // 获取所有权限
+        this.getRightsList('tree')
+        // 打开设置权限对话框
+        this.dialogFormVisibleRight = true
+      },
+
       // 获取角色列表
       async getRolesList() {
         const res = await getRoles()
-        console.log(res)
 
         const {
           data,
@@ -159,6 +211,21 @@
             // 更新该角色的权限
             role.children = data
           }, 300)
+        }
+      },
+
+      // 获取权限列表
+      async getRightsList(type) {
+        const res = await getRights(type)
+
+        const {
+          data,
+          meta: {status}
+        } = res
+
+        if(status === 200) {
+          // 保存所有权限
+          this.rightsList = data
         }
       }
     }
