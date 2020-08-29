@@ -82,7 +82,7 @@
             icon="el-icon-delete" 
             circle
             plain
-            @click="handleDelete()">
+            @click="handleDeleteRole(scope.row.id)">
           </el-button>
           <el-button
             size="mini"
@@ -118,7 +118,7 @@
 <script>
   import BreadCrumb from 'components/common/BreadCrumb'
 
-  import { getRoles, deleteRight, changeRoleRights } from 'network/role'
+  import { getRoles, deleteCurrentRole, deleteRight, changeRoleRights } from 'network/role'
   import { getRights } from 'network/right'
   export default {
     name: 'Role',
@@ -173,7 +173,6 @@
         this.currentRoleId = role.id
 
 
-
         /*
          * 1.此处有一个巨坑，elementUi的树形控件，当叶子节点一个选中其上层都会自动选中
          * 2.下方的操作如果一二级节点的将会自动选中
@@ -214,6 +213,23 @@
         if(status === 200) {
           this.rolesList = data
           console.log(this.rolesList)
+        }
+      },
+
+      // 删除角色
+      async handleDeleteRole(roleId) {
+        // 发送删除角色的请求
+        const res = await deleteCurrentRole(roleId)
+
+        const {
+          meta: {msg, status}
+        } = res
+
+        if(status === 200) {
+          this.$message.success(msg)
+
+          // 更新视图
+          this.getRolesList()
         }
       },
 
@@ -281,6 +297,9 @@
           this.dialogFormVisibleRight = false
         }
       }
+
+
+
     }
   }
 </script>

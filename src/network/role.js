@@ -7,6 +7,14 @@ export function getRoles() {
   })
 }
 
+// 删除当前角色 id -> 角色id
+export function deleteCurrentRole(id) {
+  return request({
+    url: '/roles/' + id,
+    method: 'delete'
+  })
+}
+
 // 删除角色的指定权限
 export function deleteRight(roleId, rightId) {
   return request({
