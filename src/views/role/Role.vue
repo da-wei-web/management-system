@@ -95,9 +95,11 @@
         </template>
       </el-table-column>
     </el-table>
+    <!-- 分配权限 -->
     <el-dialog title="设置权限" :visible.sync="dialogFormVisibleRight">
       <!-- 树形  default-expand-all 全部展开 default-checked-keys 选中对应id的权限 -->
       <el-tree
+        ref="tree"
         :data="rightsList"
         show-checkbox
         node-key="id"
@@ -105,10 +107,9 @@
         :default-checked-keys="rightsIdList"
         :props="defaultProps">
       </el-tree>
-
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisibleRight = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisibleRight = false">确 定</el-button>
+        <el-button type="primary" @click="setRoleRights()">确 定</el-button>
       </div>
     </el-dialog>
   </el-card>
@@ -117,7 +118,7 @@
 <script>
   import BreadCrumb from 'components/common/BreadCrumb'
 
-  import { getRoles, deleteRight } from 'network/role'
+  import { getRoles, deleteRight, changeRoleRights } from 'network/role'
   import { getRights } from 'network/right'
   export default {
     name: 'Role',
@@ -150,8 +151,12 @@
           children: 'children',
           label: 'authName'
         },
-        // 保存所有权限的id
-        rightsIdList: []
+        // 保存角色的权限id
+        rightsIdList: [],
+        // 保存当前角色id
+        currentRoleId: -1,
+        // 保存所有选中的节点的key值
+        ridsList: []
       }
     },
     created() {
@@ -162,27 +167,43 @@
       // 打开设置权限对话框
       openRightDialog(role) {
         // 获取到的角色
-        console.log(role)
+        // console.log(role)
 
+        // 保存当前角色的id
+        this.currentRoleId = role.id
+
+
+
+        /*
+         * 1.此处有一个巨坑，elementUi的树形控件，当叶子节点一个选中其上层都会自动选中
+         * 2.下方的操作如果一二级节点的将会自动选中
+         * 3. 如果一二级节点也放入arrtemp1，当点击叶子节点，处于半选状态的节点会全部变为全选
+         */ 
+        let arrtemp1 = []
         // 保存角色每一级权限对应的id
         role.children.forEach((item, index) => { // 一级
-          this.rightsIdList.push(item.id)
+          // arrtemp1.push(item.id)
           item.children.forEach((tItem, tIndex) => { // 二级 (tItem -> twoItem)
-            this.rightsIdList.push(tItem.id)
+            // arrtemp1.push(tItem.id)
             tItem.children.forEach((endItem, endIndex) => { // 三级 (endItem -> 最后一级)
-              this.rightsIdList.push(endItem.id)
+              arrtemp1.push(endItem.id)
             })
           })
         })
 
+        // 保存被选中的节点，用于数据展示
+        this.rightsIdList = arrtemp1
+
         // 获取所有权限
         this.getRightsList('tree')
+
         // 打开设置权限对话框
         this.dialogFormVisibleRight = true
       },
 
       // 获取角色列表
       async getRolesList() {
+        // console.log('啊啥时候')
         const res = await getRoles()
 
         const {
@@ -192,6 +213,7 @@
 
         if(status === 200) {
           this.rolesList = data
+          console.log(this.rolesList)
         }
       },
 
@@ -207,10 +229,8 @@
 
         if(status === 200) {
           this.$message.success(msg)
-          setTimeout(() => {
-            // 更新该角色的权限
-            role.children = data
-          }, 300)
+          // 更新该角色的权限
+          role.children = data
         }
       },
 
@@ -226,6 +246,39 @@
         if(status === 200) {
           // 保存所有权限
           this.rightsList = data
+        }
+      },
+
+      // 修改角色权限
+      async setRoleRights() {
+
+        // 获取全选中的节点的key值
+        let selectAll = this.$refs.tree.getCheckedKeys()
+        // 获取半选中的节点的key值
+        let semiSelected = this.$refs.tree.getHalfCheckedKeys()
+
+        // 合并selectAll， semiSelected
+        this.ridsList = selectAll.concat(semiSelected)
+        
+        console.log(this.ridsList)
+        // 列表转换为以,为分隔符的字符串
+        
+        // 发送修改权限的请求 this.currentRoleId -> 当前角色的id
+        const res = await changeRoleRights(this.currentRoleId, this.ridsList.join(','))
+
+        const {
+          meta: {msg, status}
+        } = res
+
+        if (status === 200) {
+          // 更新视图
+          this.getRolesList()
+
+          // 修改成功时提示信息
+          this.$message.success(msg)
+
+          // 关闭设置权限对话框
+          this.dialogFormVisibleRight = false
         }
       }
     }

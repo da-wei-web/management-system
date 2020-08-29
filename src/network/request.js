@@ -10,11 +10,12 @@ export function request(options) {
       timeout: 8000
     });
 
-    // 设置请求头
-    instance.defaults.headers.common['Authorization'] = token;
-
     // 添加请求拦截器
     instance.interceptors.request.use(config => {
+      // 除了登录路由外, 发送请求前需要设置请求头
+      if (config.url !== '/login') {
+        config.headers.common['Authorization'] = token;
+      }
       // 在发送请求之前做些什么
       return config;
     }, err => {

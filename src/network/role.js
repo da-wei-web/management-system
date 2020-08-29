@@ -14,3 +14,15 @@ export function deleteRight(roleId, rightId) {
     method: 'delete'
   })
 }
+
+// 更改角色权限
+export function changeRoleRights(roleId, rids) {
+  console.log(roleId, rids)
+  return request({
+    url: `/roles/${roleId}/rights`,
+    method: 'post',
+    data: {
+      rids
+    }
+  })
+}
