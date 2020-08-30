@@ -74,7 +74,7 @@
             circle
             plain
             type="primary"
-            @click="handleEdit()">
+            @click="openEditRoleDialog(scope.row.id)">
           </el-button>
           <el-button
             size="mini"
@@ -122,10 +122,25 @@
           <el-input v-model="form.roleDesc" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
-      {{form}}
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisibleAddRole = false">取 消</el-button>
         <el-button type="primary" @click="addOneRole">确 定</el-button>
+      </div>
+    </el-dialog>
+    <!-- 编辑角色对话框 -->
+    <el-dialog title="编辑角色" :visible.sync="dialogFormVisibleEditRole">
+      <el-form :model="form">
+        <el-form-item label="角色名称" label-width="80px">
+          <el-input v-model="form.roleName" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="角色描述" label-width="80px">
+          <el-input v-model="form.roleDesc" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      {{form}}
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisibleEditRole = false">取 消</el-button>
+        <el-button type="primary" @click="editRole">确 定</el-button>
       </div>
     </el-dialog>
   </el-card>
@@ -137,7 +152,7 @@
   import { 
     getRoles, deleteCurrentRole, 
     deleteRight, changeRoleRights,
-    addRole
+    addRole, getRole, editRoleById
   } from 'network/role'
   import { getRights } from 'network/right'
   export default {
@@ -183,7 +198,9 @@
           roleDesc: ''
         },
         // 添加角色对话框
-        dialogFormVisibleAddRole: false
+        dialogFormVisibleAddRole: false,
+        // 编辑角色对话框
+        dialogFormVisibleEditRole: false
       }
     },
     created() {
@@ -193,6 +210,7 @@
     methods: {
       // 打开添加角色对话框
       openAddRoleDialog() {
+        console.log(this.form)
         // 打开添加角色对话框
         this.dialogFormVisibleAddRole = true
       },
@@ -231,6 +249,18 @@
 
         // 打开设置权限对话框
         this.dialogFormVisibleRight = true
+      },
+
+      // 打开编辑角色对话框
+      openEditRoleDialog(roleId) {
+        // 通过id获取角色
+        this.getRoleById(roleId)
+
+        // 保存当前角色的id
+        this.currentRoleId = roleId
+
+        // 打开编辑角色对话框
+        this.dialogFormVisibleEditRole = true
       },
 
       // 添加角色
@@ -284,11 +314,27 @@
           data,
           meta: {msg, status}
         } = res
-        console.log(data)
+
         if (status === 200) {
           this.rolesList = data
-          console.log(this.rolesList)
         }
+      },
+
+      // 根据id获取角色
+      async getRoleById(roleId) {
+        const res = await getRole(roleId)
+
+        const {
+          data,
+          meta: {msg, status} 
+        } = res
+
+        if (status === 200) {
+          // 将数据保存到form表单中
+          this.form.roleName = data.roleName
+          this.form.roleDesc = data.roleDesc
+        } 
+
       },
 
       // 删除角色
@@ -371,10 +417,31 @@
           // 关闭设置权限对话框
           this.dialogFormVisibleRight = false
         }
+      },
+
+      // 编辑用户
+      async editRole() {
+        // 发送编辑角色请求
+        const res = await editRoleById(this.currentRoleId, this.form)
+
+        const {
+          meta: {msg, status}
+        } = res
+
+        if (status === 200) {
+          // 成功的提示信息
+          this.$message.success(msg)
+
+          // 更新视图
+          this.getRolesList()
+
+          // 清空表单
+          this.form = {}
+
+          // 关闭编辑角色对话框
+          this.dialogFormVisibleEditRole = false
+        } 
       }
-
-
-
     }
   }
 </script>
