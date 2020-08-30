@@ -6,6 +6,7 @@ const Login = () => import('views/login')
 const Home = () => import('views/home')
 const Users = () => import('views/users')
 const Role = () => import('views/role')
+const Right = () => import('views/right')
 
 Vue.use(VueRouter)
 
@@ -29,6 +30,11 @@ Vue.use(VueRouter)
           path: 'role',
           name: 'Role',
           component: Role
+        },
+        {
+          path: 'right',
+          name: 'Right',
+          component: Right
         }
       ]
     }

@@ -43,7 +43,7 @@
             icon: 'el-icon-location',
             childTitles: [
               {name:'角色列表', icon: 'el-icon-user', router: '/role'},
-              {name:'权限列表', icon: 'el-icon-key'}
+              {name:'权限列表', icon: 'el-icon-key', router: '/right'}
             ]
           },
           {
