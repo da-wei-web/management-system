@@ -24,7 +24,7 @@
 </template>
 
 <script>
-  import Menu from './childComs/Menu'
+  import Menu from 'components/content/Menu'
 
   export default {
     name: 'Home',

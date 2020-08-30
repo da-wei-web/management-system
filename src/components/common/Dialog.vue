@@ -11,7 +11,7 @@
         class="form-item" 
         :label="item.item_cn_title" 
         :label-width="formLabelWidth">
-        <el-input v-model="form[item.item_en_title]" :disabled="item.item_disabled ? disabled : false " autocomplete="off"></el-input>
+        <el-input v-model="form[item.item_en_title]" :disabled="item.item_disabled ? disabled : false" autocomplete="off"></el-input>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
