@@ -8,7 +8,7 @@
     <!-- 按钮 -->
     <el-row  class="add-role">
       <el-col>
-        <el-button type="primary">添加角色</el-button>
+        <el-button type="primary" @click="openAddRoleDialog">添加角色</el-button>
       </el-col>
     </el-row>
     <!-- 角色列表展示 -->
@@ -95,7 +95,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <!-- 分配权限 -->
+    <!-- 分配权限对话框 -->
     <el-dialog title="设置权限" :visible.sync="dialogFormVisibleRight">
       <!-- 树形  default-expand-all 全部展开 default-checked-keys 选中对应id的权限 -->
       <el-tree
@@ -112,13 +112,33 @@
         <el-button type="primary" @click="setRoleRights()">确 定</el-button>
       </div>
     </el-dialog>
+    <!-- 添加角色对话框 -->
+    <el-dialog title="添加角色" :visible.sync="dialogFormVisibleAddRole">
+      <el-form :model="form">
+        <el-form-item label="角色名称" label-width="80px">
+          <el-input v-model="form.roleName" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="角色描述" label-width="80px">
+          <el-input v-model="form.roleDesc" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      {{form}}
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisibleAddRole = false">取 消</el-button>
+        <el-button type="primary" @click="addOneRole">确 定</el-button>
+      </div>
+    </el-dialog>
   </el-card>
 </template>
 
 <script>
   import BreadCrumb from 'components/common/BreadCrumb'
 
-  import { getRoles, deleteCurrentRole, deleteRight, changeRoleRights } from 'network/role'
+  import { 
+    getRoles, deleteCurrentRole, 
+    deleteRight, changeRoleRights,
+    addRole
+  } from 'network/role'
   import { getRights } from 'network/right'
   export default {
     name: 'Role',
@@ -156,7 +176,14 @@
         // 保存当前角色id
         currentRoleId: -1,
         // 保存所有选中的节点的key值
-        ridsList: []
+        ridsList: [],
+        // 添加角色的表单
+        form: {
+          roleName: '',
+          roleDesc: ''
+        },
+        // 添加角色对话框
+        dialogFormVisibleAddRole: false
       }
     },
     created() {
@@ -164,6 +191,12 @@
       this.getRolesList()
     },
     methods: {
+      // 打开添加角色对话框
+      openAddRoleDialog() {
+        // 打开添加角色对话框
+        this.dialogFormVisibleAddRole = true
+      },
+
       // 打开设置权限对话框
       openRightDialog(role) {
         // 获取到的角色
@@ -200,6 +233,48 @@
         this.dialogFormVisibleRight = true
       },
 
+      // 添加角色
+      async addOneRole() {
+        // 获取角色名称
+        let rolesName = []
+        this.rolesList.forEach(item => {
+          rolesName.push(item.roleName)
+        })
+        
+        // 判断输入的角色名称是否存在，存在返回true
+        let result = rolesName.includes(this.form.roleName)
+
+        // 如果是true, 将不会再添加该角色
+        if(!result) {
+          // 发送添加角色的请求
+          const res = await addRole(this.form)
+
+          const {
+            meta: {msg, status}
+          } = res
+
+          if (status === 201) {
+            // 添加成功
+            this.$message.success(msg)
+
+            // 更新视图
+            this.getRolesList()
+
+            // 清空表单内容
+            this.form = {}
+
+            // 关闭添加角色对话框
+            this.dialogFormVisibleAddRole = false
+          } else {
+            // 角色名为空
+            this.$message.warning(msg)
+          }
+        } else {
+          // 角色名已存在
+          this.$message.warning('角色已存在')
+        } 
+      },
+
       // 获取角色列表
       async getRolesList() {
         // console.log('啊啥时候')
@@ -209,8 +284,8 @@
           data,
           meta: {msg, status}
         } = res
-
-        if(status === 200) {
+        console.log(data)
+        if (status === 200) {
           this.rolesList = data
           console.log(this.rolesList)
         }
@@ -225,7 +300,7 @@
           meta: {msg, status}
         } = res
 
-        if(status === 200) {
+        if (status === 200) {
           this.$message.success(msg)
 
           // 更新视图
@@ -243,7 +318,7 @@
           meta: {msg, status}
         } = res
 
-        if(status === 200) {
+        if (status === 200) {
           this.$message.success(msg)
           // 更新该角色的权限
           role.children = data
@@ -259,7 +334,7 @@
           meta: {status}
         } = res
 
-        if(status === 200) {
+        if (status === 200) {
           // 保存所有权限
           this.rightsList = data
         }
