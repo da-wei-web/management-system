@@ -6,10 +6,26 @@
       icon="el-icon-arrow-right">
     </BreadCrumb>
     <!-- 权限列表 -->
-    <el-table style="width: 100%" :data="rightsList">
-      <el-table-column type="index" label="#" width="60"></el-table-column>
-      <el-table-column prop="authName" label="权限名称" width="150"></el-table-column>
-      <el-table-column prop="path" label="路径" width="200"></el-table-column>
+    <el-table 
+      style="width: 100%" 
+      :data="rightsList"
+      stripe
+      max-height="600">
+      <el-table-column 
+        type="index" 
+        label="#" 
+        width="60">
+      </el-table-column>
+      <el-table-column 
+        prop="authName" 
+        label="权限名称" 
+        width="150">
+      </el-table-column>
+      <el-table-column 
+        prop="path" 
+        label="路径" 
+        width="200">
+      </el-table-column>
       <el-table-column prop="level" label="层次">
         <template slot-scope="scope">
           <span v-if="scope.row.level === '0'">一级</span>
@@ -18,7 +34,6 @@
         </template>
       </el-table-column>
     </el-table>
-
   </el-card>
 </template>
 
