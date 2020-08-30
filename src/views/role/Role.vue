@@ -137,7 +137,6 @@
           <el-input v-model="form.roleDesc" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
-      {{form}}
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisibleEditRole = false">取 消</el-button>
         <el-button type="primary" @click="editRole">确 定</el-button>
@@ -155,6 +154,7 @@
     addRole, getRole, editRoleById
   } from 'network/role'
   import { getRights } from 'network/right'
+
   export default {
     name: 'Role',
     components: {
