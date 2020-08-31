@@ -14,7 +14,7 @@
     <el-container>
       <el-aside width="200px" class="aside">
         <!-- 需大写 -->
-        <Menu></Menu>
+        <Menu :menus-list="menusList"></Menu>
       </el-aside>
       <el-main class="main">
         <router-view/>
@@ -26,10 +26,41 @@
 <script>
   import Menu from 'components/content/Menu'
 
+  import { getMenus } from 'network/menus'
+
   export default {
     name: 'Home',
     components: {
       Menu
+    },
+    data() {
+      return {
+        // 菜单列表数据
+        menusList: [],
+        // 菜单标题图标
+        icons: [
+          {
+            icon1: 'el-icon-location',  // 一级标题图标
+            childIcon: ['el-icon-user-solid']  // 二级标题图标
+          },
+          {
+            icon1: 'el-icon-location',
+            childIcon: ['el-icon-user', 'el-icon-key'] 
+          },
+          {
+            icon1: 'el-icon-location',
+            childIcon: ['el-icon-goods', 'el-icon-setting', 'el-icon-rank'] 
+          },
+          {
+            icon1: 'el-icon-location',
+            childIcon: ['el-icon-tickets'] 
+          },
+          {
+            icon1: 'el-icon-location',
+            childIcon: ['el-icon-pie-chart'] 
+          }
+        ]
+      }
     },
     beforeCreate() {
       // 判断是否有token
@@ -39,6 +70,9 @@
       // console.log(token)
       if(!token) this.$router.push('/login')
 
+    },
+    created() {
+      this.getMenusList()
     },
     methods: {
       // 退出
@@ -62,6 +96,24 @@
           })
         })
         .catch(() => {})
+      },
+
+      // 请求菜单权限列表
+      async getMenusList() {
+        const res = await getMenus()
+
+        const { data } = res
+
+        // 处理数据, 在数据中添加图标
+        data.forEach((item1, index1) => {
+          item1.icon = this.icons[index1].icon1
+          item1.children.forEach((item2, index2) => {
+            item2.icon = this.icons[index1].childIcon[index2]
+          })
+        })
+
+        // 保存新的数据
+        this.menusList = data
       }
     }
   }

@@ -27,12 +27,12 @@ Vue.use(VueRouter)
           component: Users
         },
         {
-          path: 'role',
+          path: 'roles',
           name: 'Role',
           component: Role
         },
         {
-          path: 'right',
+          path: 'rights',
           name: 'Right',
           component: Right
         }
