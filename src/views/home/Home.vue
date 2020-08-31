@@ -62,15 +62,6 @@
         ]
       }
     },
-    beforeCreate() {
-      // 判断是否有token
-      // 获取token
-      const token = localStorage.getItem('token')
-      // 判断token
-      // console.log(token)
-      if(!token) this.$router.push('/login')
-
-    },
     created() {
       this.getMenusList()
     },

@@ -4,18 +4,19 @@
             :unique-opened="true">
     <sub-menu v-for="(item, i) in menusList" 
               :key="i" 
-              :current-index="i + 1">
+              :current-index="item.order">
       <!-- 一级标题 -->
       <icon :class-name="item.icon"></icon>
       <span>{{ item.authName }}</span>
       
       <!-- 二级标题 -->
       <template v-slot:subtitle>
-        <el-menu-item v-for="(childItem, childIndex) in item.children"
-                      :key="childIndex"
-                      :index="childItem.path">
-                      <icon v-if="childItem.icon" :class-name="childItem.icon"></icon>
-                      {{childItem.authName}}
+        <el-menu-item 
+          v-for="(childItem, childIndex) in item.children"
+          :key="childIndex"
+          :index="childItem.path">
+          <icon v-if="childItem.icon" :class-name="childItem.icon"></icon>
+          {{childItem.authName}}
         </el-menu-item>
       </template>
 
