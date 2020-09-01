@@ -1,5 +1,5 @@
 <template>
-  <el-table style="width: 100%" :data="usersList">
+  <el-table style="width: 100%" :data="msgList">
     <el-table-column label="#" width="60" type="index"></el-table-column>
     <el-table-column 
       v-for="(item, index) in cellName"
@@ -8,7 +8,7 @@
       :label="item.value"
       :prop="item.column_value">
     </el-table-column>
-    <el-table-column label="用户状态" width="120">
+    <el-table-column label="用户状态" width="120" v-if="isShow">
       <template slot-scope="scope">
         <el-switch 
           v-model="scope.row.mg_state" 
@@ -18,7 +18,7 @@
         </el-switch>
       </template>
     </el-table-column>
-    <el-table-column label="操作" width="160">
+    <el-table-column label="操作">
       <template slot-scope="scope">
         <el-button
           size="mini"
@@ -42,6 +42,7 @@
           icon="el-icon-check" 
           circle
           plain
+          v-if="isShow"
           @click="handleCheck(scope.row.id, scope.row.username)">
         </el-button>
       </template>
@@ -59,7 +60,7 @@
         default: []
       },
       // 表格数据
-      usersList: {
+      msgList: {
         type: Array,
         default: []
       },
@@ -70,6 +71,10 @@
       fbgcolor: {
         type: String,
         default: '#C0CCDA'
+      },
+      isShow: {
+        type: Boolean,
+        default: true
       }
     },
     methods: {

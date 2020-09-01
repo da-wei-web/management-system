@@ -78,14 +78,14 @@
         console.log(res)
 
         // 处理数据, 在数据中添加图标
-        // if (data !== null) {
-        //   data.forEach((item1, index1) => {
-        //     item1.icon = this.icons[index1].icon1
-        //     item1.children.forEach((item2, index2) => {
-        //       item2.icon = this.icons[index1].childIcon[index2]
-        //     })
-        //   })
-        // }
+        if (data !== null) {
+          data.forEach((item1, index1) => {
+            item1.icon = this.icons[index1].icon1
+            item1.children.forEach((item2, index2) => {
+              item2.icon = this.icons[index1].childIcon[index2]
+            })
+          })
+        }
         
         // 保存新的数据
         if (status === 200) {

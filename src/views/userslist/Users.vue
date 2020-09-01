@@ -30,7 +30,7 @@
     <!-- 列表 -->
     <Table 
       :cell-name="titles"
-      :users-list="usersList" 
+      :msg-list="usersList" 
       :message="message"
       fbgcolor="#ff4949"
       @deleteOneUser="deleteOneUser"
@@ -140,10 +140,10 @@
         pagesize: 2,
         // 表格表头数据
         titles: [
-          {value: '姓名', width: 100, column_value: 'username'}, 
-          {value: '邮箱', width: 140, column_value: 'email'}, 
-          {value: '电话', width: 120, column_value: 'mobile'}, 
-          {value: '创建日期', width: 120, column_value: 'create_time'}, 
+          {value: '姓名', width: '', column_value: 'username'}, 
+          {value: '邮箱', width: '', column_value: 'email'}, 
+          {value: '电话', width: '', column_value: 'mobile'}, 
+          {value: '创建日期', width: 140, column_value: 'create_time'}, 
         ],
         // 用户列表信息
         usersList: [],
@@ -467,7 +467,7 @@
   }
 </script>
 
-<style lang="less" sccoped>
+<style lang="less" scoped>
   .box-card {
     width: 100%;
     height: 100%;
