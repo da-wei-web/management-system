@@ -376,33 +376,39 @@
 
       // 获取用户列表
       async getUsersLt(query, pagenum, pagesize) {
-        // 发送请求
-        const res = await getUsersList(query, pagenum, pagesize)
-        
-        // 处理数据
-        const {
-          meta: {msg, status},
-          data: {users, total}
-        } = res
-
-        if(status !== 200) return new Error('获取失败')
-
-        // 日期格式处理
-        const newUsers = []
-        users.map(item => {
-          // 时间变为毫秒
-          let date = new Date(item.create_time * 1000)
-
-          // 转换日期格式并替换掉create_time中的原始数据
-          item.create_time = formDate(date, 'yyyy-MM-dd')
+        try {
+          // 发送请求
+          const res = await getUsersList(query, pagenum, pagesize)
           
-          // 返回新的数组
-          return newUsers.push(item)
-        })
+          // 处理数据
+          const {
+            meta: {msg, status},
+            data: {users, total}
+          } = res
+
+          if (status === 200) {
+            // 日期格式处理
+            const newUsers = []
+            users.map(item => {
+              // 时间变为毫秒
+              let date = new Date(item.create_time * 1000)
+
+              // 转换日期格式并替换掉create_time中的原始数据
+              item.create_time = formDate(date, 'yyyy-MM-dd')
+              
+              // 返回新的数组
+              return newUsers.push(item)
+            })
+
+            // 保存数据
+            this.usersList = newUsers
+            this.total = total
+          }
+          
+        } catch(err) {
+          return new Error(err)
+        }
         
-        // 保存数据
-        this.usersList = newUsers
-        this.total = total
       },
       
       // 根据id获取用户数据

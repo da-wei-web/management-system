@@ -66,6 +66,34 @@
       this.getMenusList()
     },
     methods: {
+      // 请求菜单权限列表
+      async getMenusList() {
+        const res = await getMenus()
+
+        const { 
+          data,
+          meta: {msg, status}
+        } = res
+
+        console.log(res)
+
+        // 处理数据, 在数据中添加图标
+        // if (data !== null) {
+        //   data.forEach((item1, index1) => {
+        //     item1.icon = this.icons[index1].icon1
+        //     item1.children.forEach((item2, index2) => {
+        //       item2.icon = this.icons[index1].childIcon[index2]
+        //     })
+        //   })
+        // }
+        
+        // 保存新的数据
+        if (status === 200) {
+          this.menusList = data
+          // console.log(this.menusList)
+        }
+      },
+
       // 退出
       exit() {
         this.$confirm('您即将退出平台, 是否继续?', '提示', {
@@ -74,38 +102,17 @@
           type: 'warning'
         })
         .then(() => {
+          // 成功的提示信息
+          this.$message.success('退出成功!')
+
           // 清楚token
           localStorage.clear()
 
           // 跳转到登录页
-          this.$router.replace('/login')
-
-          // 成功的提示信息
-          this.$message({
-            type: 'success',
-            message: '退出成功!'
-          })
+          this.$router.push('/login')
         })
         .catch(() => {})
       },
-
-      // 请求菜单权限列表
-      async getMenusList() {
-        const res = await getMenus()
-
-        const { data } = res
-
-        // 处理数据, 在数据中添加图标
-        data.forEach((item1, index1) => {
-          item1.icon = this.icons[index1].icon1
-          item1.children.forEach((item2, index2) => {
-            item2.icon = this.icons[index1].childIcon[index2]
-          })
-        })
-
-        // 保存新的数据
-        this.menusList = data
-      }
     }
   }
 </script>
