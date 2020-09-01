@@ -1,13 +1,260 @@
 <template>
-  <h2>商品列表</h2>
+  <el-card class="box-card">
+    <!-- 面包屑 -->
+    <BreadCrumb 
+      :titles-list="titlesList" 
+      icon="el-icon-arrow-right">
+    </BreadCrumb>
+
+    <!-- 搜索框 -->
+    <el-row class="search-row">
+      <el-col :span="24">
+        <el-input 
+          :clearable="true"
+          placeholder="商品名称" 
+          v-model="message" 
+          @clear="getGoodsLt(message, pagenum, pagesize)"
+          class="input-with-select">
+          <el-button 
+            slot="append" 
+            icon="el-icon-search"
+            @click="message === '' ? warning() : getGoodsLt(message, pagenum, pagesize)">
+          </el-button>
+        </el-input>
+        <el-button 
+          type="success" 
+          class="add-goods">
+          添加商品
+        </el-button>
+      </el-col>
+    </el-row>
+    <!-- 列表 -->
+    <Table 
+      :cell-name="titles"
+      :msg-list="goodsList" 
+      :message="message"
+      fbgcolor="#ff4949"
+      :is-show="false">
+    </Table>
+    <!-- 分页 -->
+    <el-pagination
+      class="pagination"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="pagenum"
+      :page-sizes="[4, 6, 8, 10]"
+      :page-size="pagesize"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total">
+    </el-pagination>
+  </el-card>
 </template>
 
 <script>
+  import BreadCrumb from 'components/common/BreadCrumb'
+  import Table from 'components/content/Table'
+  import Dialog from 'components/common/Dialog'
+
+  import { 
+    getGoodsList
+  } from 'network/goods'
+
+  import { formDate } from 'common/untils/changeDate'
+
   export default {
-    name: 'GoodsList'
+    name: 'GoodsList',
+    components: {
+      BreadCrumb,
+      Table,
+      Dialog
+    },
+    data() {
+      return {
+        // 面包屑数据列表
+        titlesList: [
+          {
+            value: '首页',
+            path: '/'
+          },
+          {
+            value: '商品管理',
+          },
+          {
+            value: '商品列表'
+          }
+        ],
+        // 搜索框用于双向绑定的数据
+        message: '',
+        // 页数
+        pagenum: 1,
+        // 一页的数据量
+        pagesize: 4,
+        // 表格表头数据
+        titles: [
+          {value: '商品名称', width: 550, column_value: 'goods_name'}, 
+          {value: '商品价格(元)', width: 100, column_value: 'goods_price'}, 
+          {value: '商品重量', width: 120, column_value: 'goods_weight'}, 
+          {value: '创建日期', width: 140, column_value: 'add_time'}, 
+        ],
+        // 用户列表信息
+        goodsList: [],
+        // 保存总共的数据数
+        total: 0,
+        // 添加用户对话框开关
+        dialogFormVisibleAdd: false,
+        // 表单的label宽度
+        formLabelWidth: '',
+        // 添加用户格式
+        form: {
+          // 用于绑定表单控件中的v-model
+          username: '',
+          password: '',
+          email: '',
+          mobile: '',
+          formContent: [
+            {
+              item_en_title: 'username',  // 与上面的属性进行连用
+              item_cn_title: '用户名'     // 用于显示表单控件的类型
+            },
+            {
+              item_en_title: 'password', 
+              item_cn_title: '密码'
+            },
+            {
+              item_en_title: 'email', 
+              item_cn_title: '邮箱'
+            },
+            {
+              item_en_title: 'mobile', 
+              item_cn_title: '手机号'
+            }
+          ]
+        },
+        // 编辑用户对话框开关
+        dialogFormVisibleEdit: false,
+        // 修改用户表单格式
+        editForm: {
+          username: '',
+          email: '',
+          mobile: '',
+          formContent: [
+            {
+              item_en_title: 'username',  // 与上面的属性进行连用
+              item_cn_title: '用户名',     // 用于显示表单控件的类型
+              item_disabled: true // 用于input禁用
+            },
+            {
+              item_en_title: 'email', 
+              item_cn_title: '邮箱'
+            },
+            {
+              item_en_title: 'mobile', 
+              item_cn_title: '手机号'
+            }
+          ]
+        },
+        // 保存根据id
+        id: null,
+        // 保存用户角色
+        currentRid: -1,
+        // 角色列表
+        rolesList: [],
+        // 保存当前用户
+        currentUsername: null,
+        // 分配角色对话框开关
+        dialogFormVisibleMatch: false,
+      }
+    },
+    created() {
+      this.getGoodsLt(this.message, this.pagenum, this.pagesize)
+    },
+    methods: {
+      // 事件处理
+      // 改变一页显示的数据量
+      handleSizeChange(val) {
+        this.pagesize = val
+        this.getUsersLt(this.message, this.pagenum, this.pagesize)
+        // console.log(`每页 ${val} 条`);
+      },
+
+      // 改变当前页
+      handleCurrentChange(val) {
+        this.pagenum = val
+        this.getUsersLt(this.message, this.pagenum, this.pagesize)
+        // console.log(`当前页: ${val}`);
+      },
+
+      // 获取商品列表
+      async getGoodsLt(query, pagenum, pagesize) {
+        try {
+          // 发送请求
+          const res = await getGoodsList(query, pagenum, pagesize)
+          
+          console.log(res)
+          // 处理数据
+          const {
+            meta: {msg, status},
+            data: {goods, total}
+          } = res
+
+          if (status === 200) {
+            // 日期格式处理
+            const newGoods = []
+            goods.map(item => {
+              // 时间变为毫秒
+              let date = new Date(item.add_time * 1000)
+
+              // 转换日期格式并替换掉create_time中的原始数据
+              item.add_time = formDate(date, 'yyyy-MM-dd')
+              
+              // 返回新的数组
+              return newGoods.push(item)
+            })
+
+            // 保存数据
+            this.goodsList = newGoods
+            this.total = total
+          }
+          
+        } catch(err) {
+          return new Error(err)
+        }
+        
+      },
+
+      // 搜索框为空时点击搜索，触发该警告提示
+      warning() {
+        this.$message.warning('查询的内容不能为空!')
+      },
+    }
   }
 </script>
 
-<style>
+<style lang="less" scoped>
+  .box-card {
+    width: 100%;
+    height: 100%;
 
+    .search-row {
+      margin: 20px 0;
+
+      .input-with-select {
+        width: 400px;
+        background-color: #fff;
+      }
+
+      .add-goods {
+        margin-left: 10px;
+      }
+    }
+
+    .pagination {
+      margin-top: 10px;
+    }
+
+    // .form-item {
+    //   margin-bottom: 15px;
+    // }
+
+  }
 </style>
