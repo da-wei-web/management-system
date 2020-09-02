@@ -1,2 +1,9 @@
 import GoodsList from './GoodsList'
-export default GoodsList
+import AddGoodsPage from './AddGoodsPage'
+
+
+
+export const coms = { 
+  GoodsList,
+  AddGoodsPage
+}
