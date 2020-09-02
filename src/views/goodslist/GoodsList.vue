@@ -23,19 +23,23 @@
         </el-input>
         <el-button 
           type="success" 
-          class="add-goods">
+          class="add-goods"
+          @click="$router.push('/addgoods')">
           添加商品
         </el-button>
       </el-col>
     </el-row>
+
     <!-- 列表 -->
     <Table 
       :cell-name="titles"
       :msg-list="goodsList" 
       :message="message"
       fbgcolor="#ff4949"
-      :is-show="false">
+      :is-show="false"
+      @deleteItem="deleteGoods">
     </Table>
+
     <!-- 分页 -->
     <el-pagination
       class="pagination"
@@ -47,6 +51,8 @@
       layout="total, sizes, prev, pager, next, jumper"
       :total="total">
     </el-pagination>
+    
+
   </el-card>
 </template>
 
@@ -56,7 +62,7 @@
   import Dialog from 'components/common/Dialog'
 
   import { 
-    getGoodsList
+    getGoodsList, deleteGoodsById, addGoods
   } from 'network/goods'
 
   import { formDate } from 'common/untils/changeDate'
@@ -100,36 +106,6 @@
         goodsList: [],
         // 保存总共的数据数
         total: 0,
-        // 添加用户对话框开关
-        dialogFormVisibleAdd: false,
-        // 表单的label宽度
-        formLabelWidth: '',
-        // 添加用户格式
-        form: {
-          // 用于绑定表单控件中的v-model
-          username: '',
-          password: '',
-          email: '',
-          mobile: '',
-          formContent: [
-            {
-              item_en_title: 'username',  // 与上面的属性进行连用
-              item_cn_title: '用户名'     // 用于显示表单控件的类型
-            },
-            {
-              item_en_title: 'password', 
-              item_cn_title: '密码'
-            },
-            {
-              item_en_title: 'email', 
-              item_cn_title: '邮箱'
-            },
-            {
-              item_en_title: 'mobile', 
-              item_cn_title: '手机号'
-            }
-          ]
-        },
         // 编辑用户对话框开关
         dialogFormVisibleEdit: false,
         // 修改用户表单格式
@@ -173,14 +149,14 @@
       // 改变一页显示的数据量
       handleSizeChange(val) {
         this.pagesize = val
-        this.getUsersLt(this.message, this.pagenum, this.pagesize)
+        this.getGoodsLt(this.message, this.pagenum, this.pagesize)
         // console.log(`每页 ${val} 条`);
       },
 
       // 改变当前页
       handleCurrentChange(val) {
         this.pagenum = val
-        this.getUsersLt(this.message, this.pagenum, this.pagesize)
+        this.getGoodsLt(this.message, this.pagenum, this.pagesize)
         // console.log(`当前页: ${val}`);
       },
 
@@ -196,6 +172,8 @@
             meta: {msg, status},
             data: {goods, total}
           } = res
+
+          console.log(res)
 
           if (status === 200) {
             // 日期格式处理
@@ -226,6 +204,23 @@
       warning() {
         this.$message.warning('查询的内容不能为空!')
       },
+
+      // 删除商品
+      async deleteGoods(id) {
+        const res = await deleteGoodsById(id) 
+
+        const {
+          meta: {msg, status}
+        } = res
+
+        if (status === 200) {
+          this.$message.success(msg)
+
+          // 更新视图
+          this.getGoodsLt(this.message, this.pagenum, this.pagesize)
+        }
+      },
+
     }
   }
 </script>

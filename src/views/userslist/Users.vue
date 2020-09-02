@@ -33,7 +33,7 @@
       :msg-list="usersList" 
       :message="message"
       fbgcolor="#ff4949"
-      @deleteOneUser="deleteOneUser"
+      @deleteItem="deleteOneUser"
       @openEditUserForm="openEditUserForm(arguments)"
       @changeState="changeState(arguments)"
       @openMatchDialog="openMatchDialog(arguments)">

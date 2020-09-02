@@ -34,7 +34,7 @@
           icon="el-icon-delete" 
           circle
           plain
-          @click="handleDelete(scope.row.id)">
+          @click="handleDelete(scope.row.id || scope.row.goods_id)">
         </el-button>
         <el-button
           size="mini"
@@ -80,7 +80,7 @@
     methods: {
       // 删除用户信息
       handleDelete(id) {
-        this.$emit('deleteOneUser', id)
+        this.$emit('deleteItem', id)
       },
 
       // 编辑用户信息
