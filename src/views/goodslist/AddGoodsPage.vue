@@ -15,7 +15,7 @@
     
 
     <!-- 步骤 -->
-    <el-steps :active="active" align-center simple finish-status="success">
+    <el-steps :active="1 * active" align-center simple finish-status="success">
       <el-step title="基本信息"></el-step>
       <el-step title="商品参数"></el-step>
       <el-step title="商品属性"></el-step>
@@ -23,7 +23,14 @@
       <el-step title="商品内容"></el-step>
     </el-steps>
 
-
+    <!-- tab -->
+    <el-tabs v-model="active" tab-position="left" class="tabs" style="height: 300px;">
+      <el-tab-pane label="基本信息" name="1">基本信息</el-tab-pane>
+      <el-tab-pane label="商品参数" name="2">商品参数</el-tab-pane>
+      <el-tab-pane label="商品属性" name="3">商品属性</el-tab-pane>
+      <el-tab-pane label="商品图片" name="4">商品图片</el-tab-pane>
+      <el-tab-pane label="商品内容" name="5">商品内容</el-tab-pane>
+    </el-tabs>
 
   </el-card>
 </template>
@@ -50,9 +57,8 @@
             value: '商品列表'
           }
         ],
-
-        // 步骤
-        active: 0
+        // 当前处于激活状态的步骤
+        active: '0'
       }
     }
   }
@@ -66,5 +72,13 @@
     .alert-msg {
       margin: 20px 0 10px;
     }
+    
+    // 修改默认的ElementUI样式
+    /deep/.el-tabs__item {
+      height: 50px;
+      line-height: 50px;
+      font-size: 16px;
+    }
   }
+
 </style>

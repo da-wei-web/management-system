@@ -10,7 +10,7 @@ import {
   BreadcrumbItem, Table, TableColumn, Switch,
   Pagination, Dialog, Option, Select, 
   Tag, Tree, Alert, Steps,
-  Step
+  Step, Tabs, TabPane
 } from 'element-ui'
 import 'assets/css/reset.css'
 import 'element-ui/lib/theme-chalk/index.css'
@@ -53,6 +53,8 @@ Vue.use(Tree)
 Vue.use(Alert)
 Vue.use(Steps)
 Vue.use(Step)
+Vue.use(Tabs)
+Vue.use(TabPane)
 Vue.prototype.$confirm = MessageBox.confirm;
 Vue.prototype.$message = Message
 
