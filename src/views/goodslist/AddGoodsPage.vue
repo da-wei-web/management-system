@@ -13,7 +13,6 @@
       </el-col>
     </el-row>
     
-
     <!-- 步骤 -->
     <el-steps :active="1 * active" align-center simple finish-status="success">
       <el-step title="基本信息"></el-step>
@@ -24,13 +23,39 @@
     </el-steps>
 
     <!-- tab -->
-    <el-tabs v-model="active" tab-position="left" class="tabs" style="height: 300px;">
-      <el-tab-pane label="基本信息" name="1">基本信息</el-tab-pane>
-      <el-tab-pane label="商品参数" name="2">商品参数</el-tab-pane>
-      <el-tab-pane label="商品属性" name="3">商品属性</el-tab-pane>
-      <el-tab-pane label="商品图片" name="4">商品图片</el-tab-pane>
-      <el-tab-pane label="商品内容" name="5">商品内容</el-tab-pane>
-    </el-tabs>
+    <el-form label-position="top" label-width="80px" :model="form" style="height: 500px; overflow:auto;">
+      <el-tabs v-model="active" tab-position="left" class="tabs">
+        <el-tab-pane label="基本信息" name="1">
+          <el-form-item label="商品名称">
+            <el-input v-model="form.goods_name"></el-input>
+          </el-form-item>
+          <el-form-item label="商品价格">
+            <el-input v-model="form.goods_price"></el-input>
+          </el-form-item>
+          <el-form-item label="商品数量">
+            <el-input v-model="form.goods_number"></el-input>
+          </el-form-item>
+          <el-form-item label="商品重量">
+            <el-input v-model="form.goods_weight"></el-input>
+          </el-form-item>
+          <el-form-item label="商品介绍">
+            <el-input v-model="form.goods_introduce"></el-input>
+          </el-form-item>
+          <el-form-item label="图片上传">
+            <el-input v-model="form.pics"></el-input>
+          </el-form-item>
+          <el-form-item label="商品参数">
+            <el-input v-model="form.attrs"></el-input>
+          </el-form-item>
+        </el-tab-pane>
+        <el-tab-pane label="商品参数" name="2">商品参数</el-tab-pane>
+        <el-tab-pane label="商品属性" name="3">商品属性</el-tab-pane>
+        <el-tab-pane label="商品图片" name="4">商品图片</el-tab-pane>
+        <el-tab-pane label="商品内容" name="5">商品内容</el-tab-pane>
+      </el-tabs>
+    </el-form>
+
+    
 
   </el-card>
 </template>
@@ -58,7 +83,18 @@
           }
         ],
         // 当前处于激活状态的步骤
-        active: '0'
+        active: '1',
+        // 表单
+        form: {
+          goods_name: '',
+          goods_cat: '',
+          goods_price: '',
+          goods_number: '',
+          goods_weight: '',
+          goods_introduce: '',
+          pics: '',
+          attrs: '',
+        }
       }
     }
   }
