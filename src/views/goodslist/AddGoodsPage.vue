@@ -22,9 +22,10 @@
       <el-step title="商品内容"></el-step>
     </el-steps>
 
-    <!-- tab -->
+    <!-- 最终要取所有tabpane的数据，发送给后端，所以添加表单组件 -->
     <el-form label-position="top" label-width="80px" :model="form" style="height: 500px; overflow:auto;">
-      <el-tabs v-model="active" tab-position="left" class="tabs">
+      <!-- tab -->
+      <el-tabs v-model="active" tab-position="left" class="tabs" @tab-click="tabChange">
         <el-tab-pane label="基本信息" name="1">
           <el-form-item label="商品名称">
             <el-input v-model="form.goods_name"></el-input>
@@ -47,6 +48,16 @@
           <el-form-item label="商品参数">
             <el-input v-model="form.attrs"></el-input>
           </el-form-item>
+          <!-- 商品分类 -->
+          <el-form-item label="商品分类">
+            <!-- 联级选择器 -->
+            <el-cascader
+              v-model="value"
+              :options="options"
+              :props="cascaderDefaultOptions"
+              @change="handleChange">
+            </el-cascader>
+          </el-form-item>
         </el-tab-pane>
         <el-tab-pane label="商品参数" name="2">商品参数</el-tab-pane>
         <el-tab-pane label="商品属性" name="3">商品属性</el-tab-pane>
@@ -54,14 +65,13 @@
         <el-tab-pane label="商品内容" name="5">商品内容</el-tab-pane>
       </el-tabs>
     </el-form>
-
-    
-
   </el-card>
 </template>
 
 <script>
   import BreadCrumb from 'components/common/BreadCrumb'
+
+  import { getGoodsCategory } from 'network/category'
   export default {
     name: 'AddGoodsPage',
     components: {
@@ -94,9 +104,58 @@
           goods_introduce: '',
           pics: '',
           attrs: '',
-        }
+        },
+        // 选择的值
+        value: [],
+        // 渲染联级选择器的可选项数据源
+        options: [],
+        // 联级选择器的配置项
+        cascaderDefaultOptions: {
+          expandTrigger: 'hover',
+          value: 'cat_id',
+          label: 'cat_name',
+          children: 'children'
+        },
       }
+    },
+    created() {
+      this.getGoodsCategoryList()
+    },
+    methods: {
+      // 当切换tab时，触发时生效
+      tabChange() {
+        if(this.active === '2' && this.value.length !== 3) {
+          this.$message.warning('请先选择商品分类')
+          return false
+        }
+      },
+
+      // 联级选择器选择值
+      handleChange() {
+
+      },
+
+      // 获取联机选择器列表数据
+      async getGoodsCategoryList(type=3) {
+        // 1.请求分类数据
+        const res = await getGoodsCategory(type)
+
+        // 通过解构赋值整理数据
+        const { 
+          data,
+          meta: { msg, status }
+        } = res
+
+        // 状态码不为200, 说明未能成功获取分类列表
+        if (status !== 200) {
+          return this.$message.error(msg)
+        }
+
+        // 状态码为200时, 成功获取分类列表, 保存数据
+        this.options = data
+      },
     }
+
   }
 </script>
 
