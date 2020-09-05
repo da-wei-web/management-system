@@ -51,8 +51,8 @@
           <!-- 商品分类 -->
           <el-form-item label="商品分类">
             <!-- 联级选择器 -->
-            {{value}}
             <el-cascader
+              clearable
               v-model="value"
               :options="options"
               :props="cascaderDefaultOptions"
@@ -60,8 +60,9 @@
             </el-cascader>
           </el-form-item>
         </el-tab-pane>
+        <!-- 商品动态参数 -->
         <el-tab-pane label="商品参数" name="2">
-          <el-form-item v-for="(item1, index1) in parameters" :key="index1" :label="item1.attr_name">
+          <el-form-item v-for="(item1, index1) in dynamicParameters" :key="index1" :label="item1.attr_name">
             <el-checkbox-group v-model="item1.attr_vals">
               <el-checkbox 
                 v-for="(value, i) in item1.attr_vals" 
@@ -72,7 +73,12 @@
             </el-checkbox-group>
           </el-form-item>
         </el-tab-pane>
-        <el-tab-pane label="商品属性" name="3">商品属性</el-tab-pane>
+        <!-- 商品静态参数 -->
+        <el-tab-pane label="商品属性" name="3">
+          <el-form-item v-for="item in staticParameters" :key="item.attr_id" :label="item.attr_name">
+            <el-input v-model="item.attr_vals"></el-input>
+          </el-form-item>
+        </el-tab-pane>
         <el-tab-pane label="商品图片" name="4">商品图片</el-tab-pane>
         <el-tab-pane label="商品内容" name="5">商品内容</el-tab-pane>
       </el-tabs>
@@ -130,8 +136,10 @@
           label: 'cat_name',
           children: 'children'
         },
-        // 保存参数
-        parameters: []
+        // 保存动态参数
+        dynamicParameters: [],
+        // 保存精态参数
+        staticParameters: [],
       }
     },
     created() {
@@ -140,18 +148,44 @@
     methods: {
       // 当切换tab时，触发时生效
       tabChange() {
-        // 警告信息提示
-        // console.log(this.value.length)
-        if(this.active === '2' && this.value.length !== 3) {
-          this.$message.warning('请先选择商品分类')
-          return false
+        switch (this.active) {
+          case '2':
+            // 判断商品分类
+            if(this._judgeValue()) {
+              // 请求商品参数列表
+              this.getGoodsParametersList(this.value[2], 'many')
+            } else {
+              return false
+            }
+
+            break
+          case '3':
+            // 判断商品分类
+            if(this._judgeValue()) {
+              // 请求商品参数列表
+              this.getGoodsParametersList(this.value[2], 'only')
+            } else {
+              return false
+            }
+
+            break
+          case '4':
+            break
         }
 
-        // 请求商品参数列表
-        this.getGoodsParametersList(this.value[2], 'many')
 
 
 
+      },
+
+      // 判断是否选择第三级的分类
+      _judgeValue() {
+        if (this.value.length !== 3) {
+          this.$message.warning('请选择商品分类')
+          return false
+        } else {
+          return true
+        }
       },
 
       // 联级选择器选择值
@@ -193,13 +227,21 @@
           this.$message.warning(msg)
         }
 
-        // attr_vals的值类型转换成数组类型
-        data.forEach(item => {
-          // item.attr_vals为0的时候不进行下面的转换
-          item.attr_vals = item.attr_vals.length === 0 ? [] : item.attr_vals.trim().split(',')
-        })
+        if (sel === 'only') {
+          // 保存静态参数
+          this.staticParameters = data
+        } else {
+          // sel -> 'many'
+          // attr_vals的值类型转换成数组类型
+          data.forEach(item => {
+            // item.attr_vals为0的时候不进行下面的转换
+            item.attr_vals = item.attr_vals.length === 0 ? [] : item.attr_vals.trim().split(',')
+          })
 
-        this.parameters = data
+          // 保存动态参数
+          this.dynamicParameters = data
+        }
+        
       }
     }
 
