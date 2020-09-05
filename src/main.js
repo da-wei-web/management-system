@@ -11,7 +11,7 @@ import {
   Pagination, Dialog, Option, Select, 
   Tag, Tree, Alert, Steps,
   Step, Tabs, TabPane, Cascader,
-  CheckboxGroup, Checkbox
+  CheckboxGroup, Checkbox, Upload
 } from 'element-ui'
 import 'assets/css/reset.css'
 import 'element-ui/lib/theme-chalk/index.css'
@@ -59,6 +59,8 @@ Vue.use(TabPane)
 Vue.use(Cascader)
 Vue.use(CheckboxGroup)
 Vue.use(Checkbox)
+Vue.use(Upload)
+
 Vue.prototype.$confirm = MessageBox.confirm;
 Vue.prototype.$message = Message
 

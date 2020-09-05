@@ -79,7 +79,23 @@
             <el-input v-model="item.attr_vals"></el-input>
           </el-form-item>
         </el-tab-pane>
-        <el-tab-pane label="商品图片" name="4">商品图片</el-tab-pane>
+        <!-- 图片上传 -->
+        <el-tab-pane label="商品图片" name="4">
+          <el-form-item>
+            <el-upload
+              class="upload-demo"
+              action="http://127.0.0.1:8888/api/private/v1/upload"
+              :headers="headers"
+              :on-success="handleSuccess"
+              :on-preview="handlePreview"
+              :on-remove="handleRemove"
+              :file-list="fileList"
+              list-type="picture">
+              <el-button size="small" type="primary">点击上传</el-button>
+              <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+            </el-upload>
+          </el-form-item>
+        </el-tab-pane>
         <el-tab-pane label="商品内容" name="5">商品内容</el-tab-pane>
       </el-tabs>
     </el-form>
@@ -140,6 +156,10 @@
         dynamicParameters: [],
         // 保存精态参数
         staticParameters: [],
+        headers: {
+          Authorization: localStorage.getItem('token')
+        },
+        fileList: []
       }
     },
     created() {
@@ -169,13 +189,7 @@
             }
 
             break
-          case '4':
-            break
         }
-
-
-
-
       },
 
       // 判断是否选择第三级的分类
@@ -186,6 +200,24 @@
         } else {
           return true
         }
+      },
+
+      handleRemove(file, fileList) {
+        // file.response.data.tmp_path
+        console.log(file, fileList);
+        console.log(file.response.data.tmp_path)
+      },
+      handlePreview(file) {
+        console.log(file);
+      },
+      handleSuccess(response, file, fileList) {
+        const { 
+          data,
+          meta: { msg, status }
+        } = response
+
+        this.$message.success(msg)
+        // console.log(response, file, fileList)
       },
 
       // 联级选择器选择值
