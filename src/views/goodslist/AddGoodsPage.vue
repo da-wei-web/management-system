@@ -51,6 +51,7 @@
           <!-- 商品分类 -->
           <el-form-item label="商品分类">
             <!-- 联级选择器 -->
+            {{value}}
             <el-cascader
               v-model="value"
               :options="options"
@@ -59,7 +60,18 @@
             </el-cascader>
           </el-form-item>
         </el-tab-pane>
-        <el-tab-pane label="商品参数" name="2">商品参数</el-tab-pane>
+        <el-tab-pane label="商品参数" name="2">
+          <el-form-item v-for="(item1, index1) in parameters" :key="index1" :label="item1.attr_name">
+            <el-checkbox-group v-model="item1.attr_vals">
+              <el-checkbox 
+                v-for="(value, i) in item1.attr_vals" 
+                :key="i" 
+                :label="value"
+                border>
+              </el-checkbox>
+            </el-checkbox-group>
+          </el-form-item>
+        </el-tab-pane>
         <el-tab-pane label="商品属性" name="3">商品属性</el-tab-pane>
         <el-tab-pane label="商品图片" name="4">商品图片</el-tab-pane>
         <el-tab-pane label="商品内容" name="5">商品内容</el-tab-pane>
@@ -72,6 +84,8 @@
   import BreadCrumb from 'components/common/BreadCrumb'
 
   import { getGoodsCategory } from 'network/category'
+  import { getGoodsParameters } from 'network/parameter'
+
   export default {
     name: 'AddGoodsPage',
     components: {
@@ -106,7 +120,7 @@
           attrs: '',
         },
         // 选择的值
-        value: [],
+        value: [1, 3, 6],
         // 渲染联级选择器的可选项数据源
         options: [],
         // 联级选择器的配置项
@@ -116,6 +130,8 @@
           label: 'cat_name',
           children: 'children'
         },
+        // 保存参数
+        parameters: []
       }
     },
     created() {
@@ -124,10 +140,18 @@
     methods: {
       // 当切换tab时，触发时生效
       tabChange() {
+        // 警告信息提示
+        // console.log(this.value.length)
         if(this.active === '2' && this.value.length !== 3) {
           this.$message.warning('请先选择商品分类')
           return false
         }
+
+        // 请求商品参数列表
+        this.getGoodsParametersList(this.value[2], 'many')
+
+
+
       },
 
       // 联级选择器选择值
@@ -154,6 +178,29 @@
         // 状态码为200时, 成功获取分类列表, 保存数据
         this.options = data
       },
+
+      // 获取商品参数的列表 sel -> 'many'动态参数
+      async getGoodsParametersList(id, sel) {
+        const res = await getGoodsParameters(id, sel)
+        console.log(res)
+
+        const {
+          data, 
+          meta: { mag, status }
+        } = res
+
+        if (status !== 200) {
+          this.$message.warning(msg)
+        }
+
+        // attr_vals的值类型转换成数组类型
+        data.forEach(item => {
+          // item.attr_vals为0的时候不进行下面的转换
+          item.attr_vals = item.attr_vals.length === 0 ? [] : item.attr_vals.trim().split(',')
+        })
+
+        this.parameters = data
+      }
     }
 
   }
