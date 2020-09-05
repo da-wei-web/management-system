@@ -39,7 +39,7 @@
           <el-form-item label="商品重量">
             <el-input v-model="form.goods_weight"></el-input>
           </el-form-item>
-          <!-- 商品分类 -->
+          <!-- 商品分类 goods_cat -->
           <el-form-item label="商品分类">
             <!-- 联级选择器 -->
             <el-cascader
@@ -91,7 +91,7 @@
         <el-tab-pane label="商品内容" name="5">
           <el-form-item>
             <!-- 添加商品 -->
-            <el-button type="primary" class="add-goods">添加商品</el-button>
+            <el-button type="primary" @click="addOneGoods" class="add-goods">添加商品</el-button>
             <!-- 富文本编辑器 -->
             <quill-editor 
               v-model="form.goods_introduce"
@@ -109,6 +109,7 @@
 
   import { getGoodsCategory } from 'network/category'
   import { getGoodsParameters } from 'network/parameter'
+  import { addGoods } from 'network/goods'
 
   import 'quill/dist/quill.core.css'
   import 'quill/dist/quill.snow.css'
@@ -147,8 +148,8 @@
           goods_number: '',
           goods_weight: '',
           goods_introduce: '',
-          pics: '',
-          attrs: '',
+          pics: [],
+          attrs: [],
         },
         // 选择的值
         value: [1, 3, 6],
@@ -218,10 +219,15 @@
         }
       },
 
-      handleRemove(file, fileList) {
-        // file.response.data.tmp_path
-        console.log(file, fileList);
-        console.log(file.response.data.tmp_path)
+      handleRemove(file) {
+        // nIndex -> 下标
+        const nIndex = this.form.pics.findIndex(item => {
+          // 返回一个下标
+          return item.tmp_path === file.response.data.tmp_path
+        })
+
+        // 根据下标删除数组中的某个元素
+        this.form.pics.splice(nIndex, 1)
       },
       handlePreview(file) {
         console.log(file);
@@ -232,12 +238,51 @@
           meta: { msg, status }
         } = response
 
+        // 在pics保存图片的临时路径
+        this.form.pics.push({pic: data.tmp_path})
         this.$message.success(msg)
       },
 
       // 联级选择器选择值
       handleChange() {
 
+      },
+
+      // 添加商品
+      async addOneGoods() {
+        // 处理数据 - 分类参数(以,分割的字符串)
+        this.form.goods_cat = this.value.join(',')
+
+        // 处理数据 - 在上传图片和移除图片时,在form中添加或移除图片的临时路径
+
+        // 处理数据 - 动态参数和静态参数
+        // {
+        //   "attr_id":15,
+        //   "attr_value":"ddd"
+        // },
+        // 动态参数
+        let arr1 = this.dynamicParameters.map(item => {
+          return {attr_id: item.attr_id, attr_value: item.attr_name}
+        })
+        // 静态参数
+        let arr2 = this.staticParameters.map(item => {
+          return {attr_id: item.attr_id, attr_value: item.attr_name}
+        })
+
+        this.form.attrs = [...arr1, ...arr2]
+
+        console.log(this.form)
+        
+        const res = await addGoods(this.form)
+
+        const {
+          meta: { msg, status }
+        } = res
+
+        if(status === 201) {
+          this.$message.success(msg)
+          this.$router.push('/goods')
+        }
       },
 
       // 获取联机选择器列表数据
@@ -276,6 +321,7 @@
         if (sel === 'only') {
           // 保存静态参数
           this.staticParameters = data
+          console.log(this.staticParameters)
         } else {
           // sel -> 'many'
           // attr_vals的值类型转换成数组类型
@@ -286,6 +332,7 @@
 
           // 保存动态参数
           this.dynamicParameters = data
+          console.log(this.dynamicParameters)
         }
         
       }
