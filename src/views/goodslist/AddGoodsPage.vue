@@ -1,10 +1,10 @@
 <template>
   <el-card class="box-card">
     <!-- 面包屑 -->
-    <BreadCrumb 
+    <bread-crumb 
       :titles-list="titlesList" 
       icon="el-icon-arrow-right">
-    </BreadCrumb>
+    </bread-crumb>
 
     <!-- 警告提示 -->
     <el-row class="alert-msg">
@@ -38,15 +38,6 @@
           </el-form-item>
           <el-form-item label="商品重量">
             <el-input v-model="form.goods_weight"></el-input>
-          </el-form-item>
-          <el-form-item label="商品介绍">
-            <el-input v-model="form.goods_introduce"></el-input>
-          </el-form-item>
-          <el-form-item label="图片上传">
-            <el-input v-model="form.pics"></el-input>
-          </el-form-item>
-          <el-form-item label="商品参数">
-            <el-input v-model="form.attrs"></el-input>
           </el-form-item>
           <!-- 商品分类 -->
           <el-form-item label="商品分类">
@@ -96,7 +87,18 @@
             </el-upload>
           </el-form-item>
         </el-tab-pane>
-        <el-tab-pane label="商品内容" name="5">商品内容</el-tab-pane>
+        <!-- 商品介绍 -->
+        <el-tab-pane label="商品内容" name="5">
+          <el-form-item>
+            <!-- 添加商品 -->
+            <el-button type="primary" class="add-goods">添加商品</el-button>
+            <!-- 富文本编辑器 -->
+            <quill-editor 
+              v-model="form.goods_introduce"
+              :options="editorOption">
+            </quill-editor>
+          </el-form-item>
+        </el-tab-pane>
       </el-tabs>
     </el-form>
   </el-card>
@@ -108,10 +110,17 @@
   import { getGoodsCategory } from 'network/category'
   import { getGoodsParameters } from 'network/parameter'
 
+  import 'quill/dist/quill.core.css'
+  import 'quill/dist/quill.snow.css'
+  import 'quill/dist/quill.bubble.css'
+ 
+  import { quillEditor } from 'vue-quill-editor'
+
   export default {
     name: 'AddGoodsPage',
     components: {
-      BreadCrumb
+      BreadCrumb,
+      quillEditor
     },
     data() {
       return {
@@ -156,10 +165,17 @@
         dynamicParameters: [],
         // 保存精态参数
         staticParameters: [],
+        // 请求头
         headers: {
           Authorization: localStorage.getItem('token')
         },
-        fileList: []
+        // 文件列表
+        fileList: [],
+
+        // 富文本配置
+        editorOption: {
+
+        }
       }
     },
     created() {
@@ -217,7 +233,6 @@
         } = response
 
         this.$message.success(msg)
-        // console.log(response, file, fileList)
       },
 
       // 联级选择器选择值
@@ -248,7 +263,6 @@
       // 获取商品参数的列表 sel -> 'many'动态参数
       async getGoodsParametersList(id, sel) {
         const res = await getGoodsParameters(id, sel)
-        console.log(res)
 
         const {
           data, 
@@ -289,11 +303,20 @@
       margin: 20px 0 10px;
     }
     
-    // 修改默认的ElementUI样式
+    // /deep/深度选择器, 修改默认的ElementUI样式
     /deep/.el-tabs__item {
-      height: 50px;
-      line-height: 50px;
+      height: 64px;
+      line-height: 64px;
       font-size: 16px;
+    }
+
+    .add-goods {
+      margin: 10px 0;
+    }
+
+    // 富文本编辑器的高度
+    /deep/.ql-editor {
+      min-height: 200px;
     }
   }
 
