@@ -78,9 +78,7 @@
               action="http://127.0.0.1:8888/api/private/v1/upload"
               :headers="headers"
               :on-success="handleSuccess"
-              :on-preview="handlePreview"
               :on-remove="handleRemove"
-              :file-list="fileList"
               list-type="picture">
               <el-button size="small" type="primary">点击上传</el-button>
               <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
@@ -128,14 +126,11 @@
         // 面包屑数据列表
         titlesList: [
           {
-            value: '首页',
-            path: '/'
+            value: '商品列表',
+            path: '/goods'
           },
           {
-            value: '商品管理',
-          },
-          {
-            value: '商品列表'
+            value: '添加商品'
           }
         ],
         // 当前处于激活状态的步骤
@@ -170,12 +165,9 @@
         headers: {
           Authorization: localStorage.getItem('token')
         },
-        // 文件列表
-        fileList: [],
-
         // 富文本配置
         editorOption: {
-
+          placeholder: '在这里输入内容'
         }
       }
     },
@@ -229,15 +221,12 @@
         // 根据下标删除数组中的某个元素
         this.form.pics.splice(nIndex, 1)
       },
-      handlePreview(file) {
-        console.log(file);
-      },
-      handleSuccess(response, file, fileList) {
+      handleSuccess(response) {
         const { 
           data,
           meta: { msg, status }
         } = response
-
+    
         // 在pics保存图片的临时路径
         this.form.pics.push({pic: data.tmp_path})
         this.$message.success(msg)
@@ -261,18 +250,18 @@
         //   "attr_value":"ddd"
         // },
         // 动态参数
-        let arr1 = this.dynamicParameters.map(item => {
+        let arrAttr1 = this.dynamicParameters.map(item => {
           return {attr_id: item.attr_id, attr_value: item.attr_name}
         })
         // 静态参数
-        let arr2 = this.staticParameters.map(item => {
+        let arrAttr2 = this.staticParameters.map(item => {
           return {attr_id: item.attr_id, attr_value: item.attr_name}
         })
 
-        this.form.attrs = [...arr1, ...arr2]
-
-        console.log(this.form)
+        // 合并动态参数和静态参数
+        this.form.attrs = [...arrAttr1, ...arrAttr2]
         
+        // 请求添加商品
         const res = await addGoods(this.form)
 
         const {
@@ -318,10 +307,11 @@
           this.$message.warning(msg)
         }
 
+        // 参数类型 'only' -> 静态参数 'many' -> 动态参数
         if (sel === 'only') {
           // 保存静态参数
           this.staticParameters = data
-          console.log(this.staticParameters)
+          // console.log(this.staticParameters)
         } else {
           // sel -> 'many'
           // attr_vals的值类型转换成数组类型
@@ -332,7 +322,7 @@
 
           // 保存动态参数
           this.dynamicParameters = data
-          console.log(this.dynamicParameters)
+          // console.log(this.dynamicParameters)
         }
         
       }
