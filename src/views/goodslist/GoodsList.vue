@@ -1,10 +1,10 @@
 <template>
   <el-card class="box-card">
     <!-- 面包屑 -->
-    <BreadCrumb 
+    <bread-crumb 
       :titles-list="titlesList" 
       icon="el-icon-arrow-right">
-    </BreadCrumb>
+    </bread-crumb>
 
     <!-- 搜索框 -->
     <el-row class="search-row">
@@ -37,7 +37,8 @@
       :message="message"
       fbgcolor="#ff4949"
       :is-show="false"
-      @deleteItem="deleteGoods">
+      @deleteItem="deleteGoods"
+      @openEditDialog="jumpEditGoodsPage">
     </Table>
 
     <!-- 分页 -->
@@ -51,8 +52,6 @@
       layout="total, sizes, prev, pager, next, jumper"
       :total="total">
     </el-pagination>
-    
-
   </el-card>
 </template>
 
@@ -62,10 +61,17 @@
   import Dialog from 'components/common/Dialog'
 
   import { 
-    getGoodsList, deleteGoodsById, addGoods
+    getGoodsList, deleteGoodsById, addGoods,
   } from 'network/goods'
 
   import { formDate } from 'common/untils/changeDate'
+
+  // 富文本编辑器的样式
+  import 'quill/dist/quill.core.css'
+  import 'quill/dist/quill.snow.css'
+  import 'quill/dist/quill.bubble.css'
+ 
+  import { quillEditor } from 'vue-quill-editor'
 
   export default {
     name: 'GoodsList',
@@ -102,43 +108,14 @@
           {value: '商品重量', width: 120, column_value: 'goods_weight'}, 
           {value: '创建日期', width: 140, column_value: 'add_time'}, 
         ],
-        // 用户列表信息
+        // 商品列表信息
         goodsList: [],
         // 保存总共的数据数
         total: 0,
-        // 编辑用户对话框开关
-        dialogFormVisibleEdit: false,
-        // 修改用户表单格式
-        editForm: {
-          username: '',
-          email: '',
-          mobile: '',
-          formContent: [
-            {
-              item_en_title: 'username',  // 与上面的属性进行连用
-              item_cn_title: '用户名',     // 用于显示表单控件的类型
-              item_disabled: true // 用于input禁用
-            },
-            {
-              item_en_title: 'email', 
-              item_cn_title: '邮箱'
-            },
-            {
-              item_en_title: 'mobile', 
-              item_cn_title: '手机号'
-            }
-          ]
-        },
         // 保存根据id
         id: null,
-        // 保存用户角色
-        currentRid: -1,
-        // 角色列表
-        rolesList: [],
-        // 保存当前用户
-        currentUsername: null,
-        // 分配角色对话框开关
-        dialogFormVisibleMatch: false,
+        // 保存商品信息
+        goodsForm: {},
       }
     },
     created() {
@@ -221,6 +198,11 @@
         }
       },
 
+      // 打开编辑商品对话框
+      jumpEditGoodsPage(goodsId) {
+        this.$router.push({ name: 'EditGoodsPage', params: { id: goodsId }})
+      },
+      
     }
   }
 </script>

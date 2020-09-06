@@ -3,8 +3,6 @@ import VueRouter from 'vue-router'
 
 import { Message } from 'element-ui'
 
-// const { GoodsList, AddGoodsPage } = 'views/goodslist'
-
 // 路由懒加载
 const Login = () => import('views/login')
 const Home = () => import('views/home')
@@ -13,6 +11,7 @@ const Role = () => import('views/rolelist')
 const Right = () => import('views/rightlist')
 const GoodsList = () => import('views/goodslist/GoodsList')
 const AddGoodsPage = () => import('views/goodslist/AddGoodsPage')
+const EditGoodsPage = () => import('views/goodslist/EditGoodsPage')
 
 Vue.use(VueRouter)
 
@@ -51,6 +50,11 @@ Vue.use(VueRouter)
           path: 'addgoods',
           name: 'AddGoodsPage',
           component: AddGoodsPage
+        },
+        {
+          path: 'editgoods',
+          name: 'EditGoodsPage',
+          component: EditGoodsPage
         }
       ]
     }

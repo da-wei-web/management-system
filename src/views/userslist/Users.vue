@@ -1,10 +1,10 @@
 <template>
   <el-card class="box-card">
     <!-- 面包屑 -->
-    <BreadCrumb 
+    <bread-crumb 
       :titles-list="titlesList" 
       icon="el-icon-arrow-right">
-    </BreadCrumb>
+    </bread-crumb>
     <!-- 搜索框 -->
     <el-row class="search-row">
       <el-col :span="24">
@@ -28,16 +28,16 @@
       </el-col>
     </el-row>
     <!-- 列表 -->
-    <Table 
+    <table 
       :cell-name="titles"
       :msg-list="usersList" 
       :message="message"
       fbgcolor="#ff4949"
       @deleteItem="deleteOneUser"
-      @openEditUserForm="openEditUserForm(arguments)"
+      @openEditDialog="openEditUserForm(arguments)"
       @changeState="changeState(arguments)"
       @openMatchDialog="openMatchDialog(arguments)">
-    </Table>
+    </table>
     <!-- 分页 -->
     <el-pagination
       class="pagination"

@@ -9,7 +9,7 @@
     <!-- 警告提示 -->
     <el-row class="alert-msg">
       <el-col>
-        <el-alert title="添加商品信息" type="success" center show-icon></el-alert>
+        <el-alert title="编辑商品信息" type="success" center show-icon></el-alert>
       </el-col>
     </el-row>
     
@@ -25,7 +25,7 @@
     <!-- 最终要取所有tabpane的数据，发送给后端，所以添加表单组件 -->
     <el-form label-position="top" label-width="80px" :model="form" style="height: 500px; overflow:auto;">
       <!-- tab -->
-      <el-tabs v-model="active" tab-position="left" class="tabs" @tab-click="tabChange">
+      <el-tabs v-model="active" tab-position="left" class="tabs">
         <el-tab-pane label="基本信息" name="1">
           <el-form-item label="商品名称">
             <el-input v-model="form.goods_name"></el-input>
@@ -41,6 +41,7 @@
           </el-form-item>
           <!-- 商品分类 goods_cat -->
           <el-form-item label="商品分类">
+            {{value}}
             <!-- 联级选择器 -->
             <el-cascader
               clearable
@@ -78,6 +79,7 @@
               :headers="headers"
               :on-success="handleSuccess"
               :on-remove="handleRemove"
+              :file-list="fileList"
               list-type="picture">
               <el-button size="small" type="primary">点击上传</el-button>
               <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
@@ -88,7 +90,7 @@
         <el-tab-pane label="商品内容" name="5">
           <el-form-item>
             <!-- 添加商品 -->
-            <el-button type="primary" @click="addOneGoods" class="add-goods">添加商品</el-button>
+            <el-button type="primary" class="add-goods">修改商品信息</el-button>
             <!-- 富文本编辑器 -->
             <quill-editor 
               v-model="form.goods_introduce"
@@ -106,7 +108,9 @@
 
   import { getGoodsCategory } from 'network/category'
   import { getGoodsParameters } from 'network/parameter'
-  import { addGoods } from 'network/goods'
+  import { 
+    getGoodsById, GoodsMsg
+  } from 'network/goods'
 
   // 富文本编辑器的样式
   import 'quill/dist/quill.core.css'
@@ -116,7 +120,7 @@
   import { quillEditor } from 'vue-quill-editor'
 
   export default {
-    name: 'AddGoodsPage',
+    name: 'EditGoodsPage',
     components: {
       BreadCrumb,
       quillEditor
@@ -130,24 +134,15 @@
             path: '/goods'
           },
           {
-            value: '添加商品'
+            value: '编辑商品'
           }
         ],
         // 当前处于激活状态的步骤
         active: '1',
         // 表单
-        form: {
-          goods_name: '',
-          goods_cat: '',
-          goods_price: '',
-          goods_number: '',
-          goods_weight: '',
-          goods_introduce: '',
-          pics: [],
-          attrs: [],
-        },
+        form: {},
         // 选择的值
-        value: [1, 3, 6],
+        value: [],
         // 渲染联级选择器的可选项数据源
         options: [],
         // 联级选择器的配置项
@@ -168,49 +163,16 @@
         // 富文本配置
         editorOption: {
           placeholder: '在这里输入内容'
-        }
+        },
+        // 图片列表
+        fileList: []
       }
     },
     created() {
       this.getGoodsCategoryList()
+      this.getGoodsMsg()
     },
     methods: {
-      // 当切换tab时，触发时生效
-      tabChange() {
-        switch (this.active) {
-          case '2':
-            // 判断商品分类
-            if(this._judgeValue()) {
-              // 请求商品参数列表
-              this.getGoodsParametersList(this.value[2], 'many')
-            } else {
-              return false
-            }
-
-            break
-          case '3':
-            // 判断商品分类
-            if(this._judgeValue()) {
-              // 请求商品参数列表
-              this.getGoodsParametersList(this.value[2], 'only')
-            } else {
-              return false
-            }
-
-            break
-        }
-      },
-
-      // 判断是否选择第三级的分类
-      _judgeValue() {
-        if (this.value.length !== 3) {
-          this.$message.warning('请选择商品分类')
-          return false
-        } else {
-          return true
-        }
-      },
-
       // 移除图片
       handleRemove(file) {
         // nIndex -> 下标
@@ -234,43 +196,6 @@
         this.$message.success(msg)
       },
 
-      // 添加商品
-      async addOneGoods() {
-        // 处理数据 - 分类参数(以,分割的字符串)
-        this.form.goods_cat = this.value.join(',')
-
-        // 处理数据 - 在上传图片和移除图片时,在form中添加或移除图片的临时路径
-
-        // 处理数据 - 动态参数和静态参数
-        // {
-        //   "attr_id":15,
-        //   "attr_value":"ddd"
-        // },
-        // 动态参数
-        let arrAttr1 = this.dynamicParameters.map(item => {
-          return {attr_id: item.attr_id, attr_value: item.attr_name}
-        })
-        // 静态参数
-        let arrAttr2 = this.staticParameters.map(item => {
-          return {attr_id: item.attr_id, attr_value: item.attr_name}
-        })
-
-        // 合并动态参数和静态参数
-        this.form.attrs = [...arrAttr1, ...arrAttr2]
-        
-        // 请求添加商品
-        const res = await addGoods(this.form)
-
-        const {
-          meta: { msg, status }
-        } = res
-
-        if(status === 201) {
-          this.$message.success(msg)
-          this.$router.push('/goods')
-        }
-      },
-
       // 获取联机选择器列表数据
       async getGoodsCategoryList(type=3) {
         // 1.请求分类数据
@@ -291,40 +216,41 @@
         this.options = data
       },
 
-      // 获取商品参数的列表 sel -> 'many'动态参数
-      async getGoodsParametersList(id, sel) {
-        const res = await getGoodsParameters(id, sel)
+      async getGoodsMsg() {
+        // 接受路由参数id
+        const goodsId = this.$route.params.id
 
-        const {
-          data, 
-          meta: { mag, status }
+        // 根据商品id请求商品信息
+        const res = await getGoodsById(goodsId) 
+
+        console.log(res)
+
+        const { 
+          data,
+          meta: { msg, status }
         } = res
 
-        if (status !== 200) {
-          this.$message.warning(msg)
-        }
+        // 整合数据
+        const goodsMsg = new GoodsMsg(data)
 
-        // 参数类型 'only' -> 静态参数 'many' -> 动态参数
-        if (sel === 'only') {
-          // 保存静态参数
-          this.staticParameters = data
-          // console.log(this.staticParameters)
-        } else {
-          // sel -> 'many'
-          // attr_vals的值类型转换成数组类型
-          data.forEach(item => {
-            // item.attr_vals为0的时候不进行下面的转换
-            item.attr_vals = item.attr_vals.length === 0 ? [] : item.attr_vals.trim().split(',')
-          })
+        // 图片列表
+        this.fileList = goodsMsg.pics
 
-          // 保存动态参数
-          this.dynamicParameters = data
-          // console.log(this.dynamicParameters)
-        }
-        
+        // 商品参数
+        goodsMsg.attrs.forEach(item => {
+          item.attr_sel === 'only' ? this.staticParameters.push(item) : this.dynamicParameters.push(item) 
+        })
+
+        // 分类
+        let goodsCat = data.goods_cat.split(',')
+
+        goodsCat.forEach(value => {
+          this.value.push(value * 1)
+        })
+        // 基本信息
+        this.form = goodsMsg
       }
     }
-
   }
 </script>
 

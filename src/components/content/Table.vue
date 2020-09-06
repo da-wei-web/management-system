@@ -26,7 +26,7 @@
           circle
           plain
           type="primary"
-          @click="handleEdit(scope.row.id, scope.row.email, scope.row.mobile)">
+          @click="handleEdit(scope.row.id || scope.row.goods_id, scope.row.email, scope.row.mobile)">
         </el-button>
         <el-button
           size="mini"
@@ -84,8 +84,8 @@
       },
 
       // 编辑用户信息
-      handleEdit(userId, userEmail, userMobile) {
-        this.$emit('openEditUserForm', userId, userEmail, userMobile)
+      handleEdit(id, userEmail, userMobile) {
+        this.$emit('openEditDialog', id, userEmail, userMobile)
       },
       
       // 改变用户状态

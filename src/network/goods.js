@@ -28,3 +28,24 @@ export function getGoodsList(query, pagenum, pagesize) {
     }
   })
 }
+
+// 根据id获取商品信息
+export function getGoodsById(id) {
+  console.log(id)
+  return request({
+    url: '/goods/' + id
+  })
+}
+
+
+export class GoodsMsg {
+  constructor(data) {
+    this.goods_name = data.goods_name;
+    this.goods_price = data.goods_price;
+    this.goods_number = data.goods_number;
+    this.goods_weight = data.goods_weight;
+    this.goods_introduce = data.goods_introduce;
+    this.pics = data.pics;
+    this.attrs = data.attrs;
+  }
+}
