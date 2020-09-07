@@ -5,7 +5,7 @@ export function addGoods(data) {
   return request({
     url: '/goods',
     method: 'post',
-    data
+    data,
   })
 }
 
@@ -13,7 +13,7 @@ export function addGoods(data) {
 export function deleteGoodsById(id) {
   return request({
     url: '/goods/' + id,
-    method: 'delete'
+    method: 'delete',
   })
 }
 
@@ -24,8 +24,8 @@ export function getGoodsList(query, pagenum, pagesize) {
     params: {
       query,
       pagenum, 
-      pagesize
-    }
+      pagesize,
+    },
   })
 }
 
@@ -33,13 +33,21 @@ export function getGoodsList(query, pagenum, pagesize) {
 export function getGoodsById(id) {
   console.log(id)
   return request({
-    url: '/goods/' + id
+    url: '/goods/' + id,
   })
 }
 
-
+// 编辑商品信息提交
+export function editGoods(id, data) {
+  return request({
+    url: '/goods/' + id,
+    method: 'put',
+    data,
+  })
+}
 export class GoodsMsg {
   constructor(data) {
+    this.goods_cat = data.goods_cat;
     this.goods_name = data.goods_name;
     this.goods_price = data.goods_price;
     this.goods_number = data.goods_number;

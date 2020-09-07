@@ -5,14 +5,12 @@
       :titles-list="titlesList" 
       icon="el-icon-arrow-right">
     </bread-crumb>
-
     <!-- 警告提示 -->
     <el-row class="alert-msg">
       <el-col>
         <el-alert title="编辑商品信息" type="success" center show-icon></el-alert>
       </el-col>
     </el-row>
-    
     <!-- 步骤 -->
     <el-steps :active="1 * active" align-center simple finish-status="success">
       <el-step title="基本信息"></el-step>
@@ -21,7 +19,6 @@
       <el-step title="商品图片"></el-step>
       <el-step title="商品内容"></el-step>
     </el-steps>
-
     <!-- 最终要取所有tabpane的数据，发送给后端，所以添加表单组件 -->
     <el-form label-position="top" label-width="80px" :model="form" style="height: 500px; overflow:auto;">
       <!-- tab -->
@@ -90,7 +87,7 @@
         <el-tab-pane label="商品内容" name="5">
           <el-form-item>
             <!-- 添加商品 -->
-            <el-button type="primary" class="add-goods">修改商品信息</el-button>
+            <el-button type="primary" @click="editGoodsMsg" class="edit-goods">修改商品信息</el-button>
             <!-- 富文本编辑器 -->
             <quill-editor 
               v-model="form.goods_introduce"
@@ -109,7 +106,7 @@
   import { getGoodsCategory } from 'network/category'
   import { getGoodsParameters } from 'network/parameter'
   import { 
-    getGoodsById, GoodsMsg
+    getGoodsById, GoodsMsg, editGoods
   } from 'network/goods'
 
   // 富文本编辑器的样式
@@ -139,6 +136,8 @@
         ],
         // 当前处于激活状态的步骤
         active: '1',
+        // 商品id
+        id: -1,
         // 表单
         form: {},
         // 选择的值
@@ -220,36 +219,93 @@
         // 接受路由参数id
         const goodsId = this.$route.params.id
 
+        // 商品id为空时或在该页面刷新时(导致无法获取商品id)时触发
+        if (!goodsId) {
+          this.$router.push('/goods')
+          return false
+        }
+
+        // 保存商品id
+        this.id = goodsId
+
         // 根据商品id请求商品信息
         const res = await getGoodsById(goodsId) 
-
-        console.log(res)
 
         const { 
           data,
           meta: { msg, status }
         } = res
 
+        console.log(data)
         // 整合数据
         const goodsMsg = new GoodsMsg(data)
 
         // 图片列表
         this.fileList = goodsMsg.pics
 
+        // 用于保存动态参数
+        let dynamicArr = []
+
         // 商品参数
         goodsMsg.attrs.forEach(item => {
-          item.attr_sel === 'only' ? this.staticParameters.push(item) : this.dynamicParameters.push(item) 
+          item.attr_sel === 'only' ? this.staticParameters.push(item) : dynamicArr.push(item) 
         })
 
-        // 分类
-        let goodsCat = data.goods_cat.split(',')
+        // 动态参数数据整理
+        dynamicArr.forEach(item => {
+          item.attr_vals = item.attr_vals.length === 0 ? [] : item.attr_vals.trim().split(',')
+        })
 
+        // 保存最终的动态参数数据
+        this.dynamicParameters = dynamicArr
+
+        // 分类 字符串转换为数组
+        let goodsCat = goodsMsg.goods_cat.split(',')
+
+        // 过渡数组，保存分类id -> ['1', '2', '3']
+        let arr = []
         goodsCat.forEach(value => {
-          this.value.push(value * 1)
+          // 字符串转数字
+          arr.push(value * 1)
         })
+
+        // 保存分类的id -> [1, 2, 3]
+        this.value = arr
+
         // 基本信息
         this.form = goodsMsg
-      }
+      },
+
+      // 编辑商品提交
+      async editGoodsMsg() {
+        // 处理数据 - 分类参数(以,分割的字符串)
+        this.form.goods_cat = this.value.join(',')
+
+        // 动态参数
+        let arrAttr1 = this.dynamicParameters.map(item => {
+          return {attr_id: item.attr_id, attr_value: item.attr_name}
+        })
+        // 静态参数
+        let arrAttr2 = this.staticParameters.map(item => {
+          return {attr_id: item.attr_id, attr_value: item.attr_name}
+        })
+
+        // 合并动态参数和静态参数
+        this.form.attrs = [...arrAttr1, ...arrAttr2]
+
+
+        console.log(this.form)
+        const res = await editGoods(this.id, this.form) 
+       
+        const {
+          meta: { msg, status}
+        } = res
+
+        if (status === 200) {
+          this.$message.success(msg)
+          this.$router.push('/goods')
+        }
+      },
     }
   }
 </script>
@@ -270,7 +326,7 @@
       font-size: 16px;
     }
 
-    .add-goods {
+    .edit-goods {
       margin: 10px 0;
     }
 
