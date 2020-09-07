@@ -215,6 +215,7 @@
         this.options = data
       },
 
+      // 获取商品数据
       async getGoodsMsg() {
         // 接受路由参数id
         const goodsId = this.$route.params.id
@@ -281,11 +282,11 @@
         // 处理数据 - 分类参数(以,分割的字符串)
         this.form.goods_cat = this.value.join(',')
 
-        // 动态参数
+        // 处理数据 - 动态参数
         let arrAttr1 = this.dynamicParameters.map(item => {
           return {attr_id: item.attr_id, attr_value: item.attr_name}
         })
-        // 静态参数
+        // 处理数据 - 静态参数
         let arrAttr2 = this.staticParameters.map(item => {
           return {attr_id: item.attr_id, attr_value: item.attr_name}
         })
@@ -293,8 +294,7 @@
         // 合并动态参数和静态参数
         this.form.attrs = [...arrAttr1, ...arrAttr2]
 
-
-        console.log(this.form)
+        // 发送编辑商品提交请求
         const res = await editGoods(this.id, this.form) 
        
         const {
@@ -303,6 +303,8 @@
 
         if (status === 200) {
           this.$message.success(msg)
+
+          // 跳转到商品列表页面
           this.$router.push('/goods')
         }
       },
