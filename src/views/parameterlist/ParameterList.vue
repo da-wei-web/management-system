@@ -1,6 +1,9 @@
 <template>
   <el-card class="box-card">
+    <!-- 面包屑 -->
     <bread-crumb :titles-list="titlesList" icon="el-icon-arrow-right" />
+    <!-- 提示信息 -->
+    <el-alert title="商品参数" type="error"></el-alert>
   </el-card>
 </template>
 
@@ -26,7 +29,8 @@
           {
             value: '参数列表'
           }
-        ]
+        ],
+        // 
       }
     }
   }
