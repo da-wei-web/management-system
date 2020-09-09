@@ -13,11 +13,12 @@
           v-model="value"
           :options="options"
           :props="cascaderDefaultOptions"
-          :show-all-levels="false">
+          :show-all-levels="false"
+          @change="changeValue">
           <!-- :show-all-levels="false" 仅渲染第三级分类 -->
         </el-cascader>
       </el-form-item>
-      <el-tabs v-model="active" type="card" @tab-click="tabChange">
+      <el-tabs v-model="active" type="card" @tab-click="tabChange(active)">
         <el-tab-pane label="动态参数" name="1">
           <!-- 按钮 -->
           <el-row class="parameter">
@@ -82,7 +83,7 @@
           </el-row>
           <!-- 表格 -->
           <el-table 
-            :data="dynamicParameters"
+            :data="staticParameters"
             style="width: 100%">
             <!-- 第一列-展开详情 -->
             <el-table-column 
@@ -136,7 +137,7 @@
     name: 'ParameterList',
     components: {
       BreadCrumb,
-      Table
+      Table,
     },
     data() {
       return {
@@ -194,9 +195,15 @@
         this.options = data
       },
 
+      // 级联选择器选中节点变化时触发
+      changeValue() {
+        // 当选择分类后直接显示参数列表
+        this.tabChange('1')
+      },
+
       // 当切换tab时，触发时生效
-      tabChange() {
-        switch (this.active) {
+      tabChange(active) {
+        switch (active) {
           case '1':
             // 判断商品分类
             if (this._judgeValue()) { // 请求商品参数列表
