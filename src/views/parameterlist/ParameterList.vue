@@ -3,7 +3,7 @@
     <!-- 面包屑 -->
     <bread-crumb :titles-list="titlesList" />
     <!-- 提示信息 -->
-    <el-alert title="商品参数" type="error" class="alert-msg"></el-alert>
+    <el-alert title="只允许第三级分类显示" type="error" class="alert-msg"></el-alert>
     <!-- 商品类型 -->
     <el-form label-position="left" label-width="80px" style="height: 500px; overflow:auto;">
       <el-form-item label="商品分类">
@@ -35,17 +35,26 @@
               label="#" 
               type="expand">
               <template slot-scope="scope">
-                <el-form-item :label="scope.row.attr_name">
-                  <!-- 动态参数展开 -->
-                  <el-checkbox-group v-model="scope.row.attr_vals">
-                    <el-checkbox 
-                      v-for="(value, i) in scope.row.attr_vals" 
-                      :key="i" 
-                      :label="value"
-                      border>
-                    </el-checkbox>
-                  </el-checkbox-group>
-                </el-form-item>
+                <el-tag
+                  :key="tag"
+                  v-for="tag in scope.row.attr_vals"
+                  closable
+                  :disable-transitions="false"
+                  @close="handleClose(tag, scope.row.attr_vals)">
+                  {{tag}}
+                </el-tag>
+                <!-- 添加标签的输入框 -->
+                <el-input
+                  class="input-new-tag"
+                  v-if="inputVisible"
+                  v-model="inputValue"
+                  ref="saveTagInput"
+                  size="small"
+                  @keyup.enter.native="handleInputConfirm(scope.row.attr_vals)"
+                  @blur="handleInputConfirm(scope.row.attr_vals)">
+                </el-input>
+                <!-- 添加标签 -->
+                <el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>
               </template>
             </el-table-column>
             <!-- 第二列-参数名称 -->
@@ -171,6 +180,9 @@
         dynamicParameters: [],
         // 保存静态参数
         staticParameters: [],
+        // 动态参数标签属性
+        inputVisible: false,
+        inputValue: ''
       }
     },
     created() {
@@ -197,6 +209,7 @@
 
       // 级联选择器选中节点变化时触发
       changeValue() {
+        console.log('1')
         // 当选择分类后直接显示参数列表
         this.tabChange('1')
       },
@@ -208,6 +221,7 @@
             // 判断商品分类
             if (this._judgeValue()) { // 请求商品参数列表
               this.getGoodsParametersList(this.value[2], 'many')
+              console.log('2')
             } else {
               return false
             }
@@ -241,7 +255,7 @@
         
         const {
           data, 
-          meta: { msg, status}
+          meta: { msg, status }
         } = res
 
         if (status !== 200) {
@@ -264,10 +278,28 @@
           console.log(this.dynamicParameters)
         }
       },
-      // deleteParameter() {
-      //   console.log('删除参数')
-      // }
 
+      // 动态参数相关事件
+      handleClose(tag, dynamicTags) {
+        dynamicTags.splice(dynamicTags.indexOf(tag), 1);
+      },
+
+      handleInputConfirm(dynamicTags) {
+        let inputValue = this.inputValue;
+        if (inputValue) {
+          dynamicTags.push(inputValue);
+        }
+        this.inputVisible = false;
+        this.inputValue = '';
+      },
+
+      // 显示输入框
+      showInput() {
+        this.inputVisible = true;
+        this.$nextTick(_ => {
+          this.$refs.saveTagInput.$refs.input.focus();
+        });
+      },
     }
   }
 </script>
@@ -279,6 +311,24 @@
 
     .alert-msg {
       margin: 20px 0 10px;
+    }
+
+    .el-tag + .el-tag {
+      margin-left: 10px;
+    }
+
+    .button-new-tag {
+      margin-left: 10px;
+      height: 32px;
+      line-height: 30px;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    .input-new-tag {
+      width: 90px;
+      margin-left: 10px;
+      vertical-align: bottom;
     }
   }
 </style>
