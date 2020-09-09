@@ -34,7 +34,6 @@
     <Table 
       :cell-name="titles"
       :msg-list="goodsList" 
-      :message="message"
       fbgcolor="#ff4949"
       :is-show="false"
       @deleteItem="deleteGoods"

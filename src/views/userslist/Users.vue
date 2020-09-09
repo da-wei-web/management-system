@@ -28,16 +28,15 @@
       </el-col>
     </el-row>
     <!-- 列表 -->
-    <table 
+    <Table 
       :cell-name="titles"
       :msg-list="usersList" 
-      :message="message"
       fbgcolor="#ff4949"
       @deleteItem="deleteOneUser"
       @openEditDialog="openEditUserForm(arguments)"
       @changeState="changeState(arguments)"
       @openMatchDialog="openMatchDialog(arguments)">
-    </table>
+    </Table>
     <!-- 分页 -->
     <el-pagination
       class="pagination"
