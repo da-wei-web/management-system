@@ -19,15 +19,107 @@
       </el-form-item>
       <el-tabs v-model="active" type="card" @tab-click="tabChange">
         <el-tab-pane label="动态参数" name="1">
-          <el-button type="danger">动态参数</el-button>
-          <Table 
-            :cell-name="titles"
-            fbgcolor="#ff4949"
-            :is-show="false"
-            :msg-list="dynamicParameters">
-          </Table>
+          <!-- 按钮 -->
+          <el-row class="parameter">
+            <el-col>
+              <el-button type="danger">设置动态参数</el-button>
+            </el-col>
+          </el-row>
+          <!-- 表格 -->
+          <el-table 
+            :data="dynamicParameters"
+            style="width: 100%">
+            <!-- 第一列-展开详情 -->
+            <el-table-column 
+              label="#" 
+              type="expand">
+              <template slot-scope="scope">
+                <el-form-item :label="scope.row.attr_name">
+                  <!-- 动态参数展开 -->
+                  <el-checkbox-group v-model="scope.row.attr_vals">
+                    <el-checkbox 
+                      v-for="(value, i) in scope.row.attr_vals" 
+                      :key="i" 
+                      :label="value"
+                      border>
+                    </el-checkbox>
+                  </el-checkbox-group>
+                </el-form-item>
+              </template>
+            </el-table-column>
+            <!-- 第二列-参数名称 -->
+            <el-table-column
+              label="参数名称"
+              prop="attr_name">
+            </el-table-column>
+            <!-- 操作 -->
+            <el-table-column label="操作" width="160">
+              <template slot-scope="scope">
+                <el-button
+                  size="mini"
+                  icon="el-icon-edit" 
+                  circle
+                  plain
+                  type="primary">
+                </el-button>
+                <el-button
+                  size="mini"
+                  type="danger"
+                  icon="el-icon-delete" 
+                  circle
+                  plain>
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
         </el-tab-pane>
-       ​ <el-tab-pane label="静态参数" name="2">静态参数</el-tab-pane>
+        <el-tab-pane label="静态参数" name="2">
+          <!-- 按钮 -->
+          <el-row class="parameter">
+            <el-col>
+              <el-button type="danger">设置静态参数</el-button>
+            </el-col>
+          </el-row>
+          <!-- 表格 -->
+          <el-table 
+            :data="dynamicParameters"
+            style="width: 100%">
+            <!-- 第一列-展开详情 -->
+            <el-table-column 
+              label="#" 
+              type="index">
+            </el-table-column>
+            <!-- 第二列-参数名称 -->
+            <el-table-column
+              label="参数名称"
+              prop="attr_name">
+            </el-table-column>
+            <!-- 第三列-静态参数内容 -->
+            <el-table-column
+              label="参数名称"
+              prop="attr_vals">
+            </el-table-column>
+            <!-- 操作 -->
+            <el-table-column label="操作" width="160">
+              <template slot-scope="scope">
+                <el-button
+                  size="mini"
+                  icon="el-icon-edit" 
+                  circle
+                  plain
+                  type="primary">
+                </el-button>
+                <el-button
+                  size="mini"
+                  type="danger"
+                  icon="el-icon-delete" 
+                  circle
+                  plain>
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
       </el-tabs>
     </el-form>
   </el-card>
@@ -78,10 +170,6 @@
         dynamicParameters: [],
         // 保存静态参数
         staticParameters: [],
-        // 表头信息
-        titles: [
-          { value: '参数名称', width: 550, column_value: 'attr_name' }
-        ]
       }
     },
     created() {
