@@ -9,6 +9,15 @@ export function addParameters(id, data) {
   })
 }
 
+// 删除参数
+export function deleteParameters(id, attrid) {
+  return request({
+    url: `/categories/${id}/attributes/${attrid}`,
+    method: 'delete',
+  })
+}
+
+
 // 获取商品参数数据
 export function getGoodsParameters(id, sel) {
   return request({

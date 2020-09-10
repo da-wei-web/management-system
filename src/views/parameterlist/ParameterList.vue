@@ -77,7 +77,8 @@
                   type="danger"
                   icon="el-icon-delete" 
                   circle
-                  plain>
+                  plain
+                  @click="deleteGoodsParameters(scope.row.cat_id, scope.row.attr_id)">
                 </el-button>
               </template>
             </el-table-column>
@@ -154,7 +155,8 @@
   import { 
     getGoodsParameters, 
     modifyGoodsParameters,
-    addParameters
+    addParameters,
+    deleteParameters
   } from 'network/parameter'
 
   export default {
@@ -425,6 +427,19 @@
 
         if (status === 201) {
           this.$message.success(msg)
+        }
+      },
+
+      // 删除商品参数
+      async deleteGoodsParameters(id, attrId) {
+        const res = await deleteParameters(id, attrId)
+        
+        const { meta: { msg, status } } = res
+
+        if (status === 200) {
+          this.$message.success(msg)
+          // 更新动态参数列表视图
+          this.getGoodsParametersList(this.value[2], 'many')
         }
       }
     }
