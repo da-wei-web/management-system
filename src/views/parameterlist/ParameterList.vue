@@ -7,6 +7,7 @@
     <!-- 商品类型 -->
     <el-form label-position="left" label-width="80px" style="height: 500px; overflow:auto;">
       <el-form-item label="商品分类">
+        {{value}}
         <!-- 联级选择器 -->
         <el-cascader
           clearable
@@ -40,7 +41,7 @@
                   v-for="tag in scope.row.attr_vals"
                   closable
                   :disable-transitions="false"
-                  @close="handleClose(tag, scope.row.attr_vals)">
+                  @close="handleClose(tag, scope.row)">
                   {{tag}}
                 </el-tag>
                 <!-- 添加标签的输入框 -->
@@ -140,7 +141,7 @@
 
   import Table from 'components/content/Table'
   import { getGoodsCategory } from 'network/category'
-  import { getGoodsParameters } from 'network/parameter'
+  import { getGoodsParameters, modifyGoodsParameters } from 'network/parameter'
 
   export default {
     name: 'ParameterList',
@@ -280,8 +281,22 @@
       },
 
       // 动态参数相关事件
-      handleClose(tag, dynamicTags) {
-        dynamicTags.splice(dynamicTags.indexOf(tag), 1);
+      handleClose(tag, dynamicItemParameter) {
+        // 找到并移除动态参数数组中的目标元素
+        dynamicItemParameter.attr_vals.splice(dynamicItemParameter.attr_vals.indexOf(tag), 1)
+        
+        // 解构
+        const { attr_id, attr_name, attr_sel, attr_vals } = dynamicItemParameter
+
+        // 修改后的动态参数数据
+        const dynamicData = {
+          attr_name: attr_name,
+          attr_sel: attr_sel,
+          attr_vals: attr_vals.join(',') // 数据类型是以,分割的字符串
+        }
+
+        // 发送修改参数的请求， 第一个参数: 分类id(第三级)，第二参数: 动态参数id， 第三参数: 修改后要提交的数据
+        this.modifyParameters(this.value[2], attr_id, dynamicData)
       },
 
       handleInputConfirm(dynamicTags) {
@@ -298,7 +313,20 @@
         this.inputVisible = true;
         this.$nextTick(_ => {
           this.$refs.saveTagInput.$refs.input.focus();
-        });
+        })
+      },
+
+      // 修改参数
+      async modifyParameters(id, attrId, data) {
+        const res = await modifyGoodsParameters(id, attrId, data) 
+        
+        const {
+          meta: { msg, status }
+        } = res
+
+        if (status === 200) {
+          this.$message.success(msg)
+        }
       },
     }
   }

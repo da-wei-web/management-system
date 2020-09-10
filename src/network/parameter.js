@@ -8,3 +8,11 @@ export function getGoodsParameters(id, sel) {
     }
   })
 }
+
+export function modifyGoodsParameters(id, attrId, data) {
+  return request({
+    url: `categories/${id}/attributes/${attrId}`,
+    method: 'put',
+    data
+  })
+}
