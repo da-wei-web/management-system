@@ -24,7 +24,7 @@
           <!-- 按钮 -->
           <el-row class="parameter">
             <el-col>
-              <el-button type="danger">设置动态参数</el-button>
+              <el-button type="danger" @click="openSetDynamicParametersDialog">设置动态参数</el-button>
             </el-col>
           </el-row>
           <!-- 表格 -->
@@ -132,21 +132,37 @@
         </el-tab-pane>
       </el-tabs>
     </el-form>
+    <!-- 设置动态参数对话框 -->
+    <Dialog 
+      ref="dialogAdd"
+      :dialog-form-visible="dialogFormVisibleAddParameters"
+      :form="form"
+      dialogWidth="35%"
+      name="添加动态参数"
+      @cancelDialog="addGoodsDynamicParameters">
+    </Dialog>
   </el-card>
 </template>
-
+// @open="openSetDynamicParametersDialog"
 <script>
   import BreadCrumb from 'components/common/BreadCrumb'
 
   import Table from 'components/content/Table'
+  import Dialog from 'components/common/Dialog'
+
   import { getGoodsCategory } from 'network/category'
-  import { getGoodsParameters, modifyGoodsParameters } from 'network/parameter'
+  import { 
+    getGoodsParameters, 
+    modifyGoodsParameters,
+    addParameters
+  } from 'network/parameter'
 
   export default {
     name: 'ParameterList',
     components: {
       BreadCrumb,
       Table,
+      Dialog,
     },
     data() {
       return {
@@ -182,7 +198,25 @@
         staticParameters: [],
         // 动态参数标签属性
         inputVisible: false,
-        inputValue: ''
+        inputValue: '',
+        // 设置动态参数对话框
+        dialogFormVisibleAddParameters: false,
+        // 添加分类参数
+        form: {
+          // 用于绑定表单控件中的v-model
+          attr_name: '',
+          attr_vals: '',
+          formContent: [
+            {
+              item_en_title: 'attr_name',  // 与上面的属性进行连用
+              item_cn_title: '参数名称'     // 用于显示表单控件的类型
+            },
+            {
+              item_en_title: 'attr_vals', 
+              item_cn_title: '值'
+            }
+          ]
+        },
       }
     },
     created() {
@@ -297,7 +331,8 @@
         // 发送修改参数的请求， 第一个参数: 分类id(第三级)，第二参数: 动态参数id， 第三参数: 修改后要提交的数据
         this.modifyParameters(this.value[2], attr_id, dynamicData)
       },
-
+      
+      // 添加参数
       handleInputConfirm(dynamicItemParameter) {
         let inputValue = this.inputValue;
         
@@ -342,6 +377,56 @@
           this.$message.success(msg)
         }
       },
+
+      // 打开设置动态参数对话框
+      openSetDynamicParametersDialog() {
+        if (!this.value[2]) {
+          this.$message.warning('请选择分类')
+          return false
+        }
+        
+        this.dialogFormVisibleAddParameters = true
+      },
+
+      // 添加动态参数
+      addGoodsDynamicParameters(status) {
+        if (status) {
+          let dynamicData = { 
+            attr_name: this.form.attr_name,
+            attr_sel: 'many',
+            attr_vals: this.form.attr_vals.trim().split(' ，'), // 将字符串转换为数组,在表单控件中需用英文的逗号作为间隔 
+          }
+
+          // 添加商品动态参数
+          this.addGoodsParameters(this.value[2], dynamicData)
+
+          // 更新动态参数列表视图
+          this.getGoodsParametersList(this.value[2], 'many')
+
+          // 清空form中的数据
+          this.form.attr_name = ''
+          this.form.attr_vals = ''
+
+          // 关闭设置动态参数对话框
+          this.dialogFormVisibleAddParameters = false
+        } else {
+          this.dialogFormVisibleAddParameters = false
+        }
+      },
+
+      // 添加商品参数 id -> 分类id， data -> attr_name, attr_sel, attr_vals
+      async addGoodsParameters(id, data) {
+        // 发送添加参数的请求
+        const res = await addParameters(id, data)
+
+        const {
+          meta: { msg, status }
+        } = res
+
+        if (status === 201) {
+          this.$message.success(msg)
+        }
+      }
     }
   }
 </script>

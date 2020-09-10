@@ -57,6 +57,7 @@
       // 关闭添加用户对话框
       cancel(status) {
         this.$emit('cancelDialog', status)
+        console.log(this.form.attr_vals.trim().split(','))
       },
 
       // 打开添加用户对话框
