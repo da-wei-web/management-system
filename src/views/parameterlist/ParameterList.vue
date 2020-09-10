@@ -51,8 +51,7 @@
                   v-model="inputValue"
                   ref="saveTagInput"
                   size="small"
-                  @keyup.enter.native="handleInputConfirm(scope.row.attr_vals)"
-                  @blur="handleInputConfirm(scope.row.attr_vals)">
+                  @keyup.enter.native="handleInputConfirm(scope.row)">
                 </el-input>
                 <!-- 添加标签 -->
                 <el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>
@@ -299,11 +298,26 @@
         this.modifyParameters(this.value[2], attr_id, dynamicData)
       },
 
-      handleInputConfirm(dynamicTags) {
+      handleInputConfirm(dynamicItemParameter) {
         let inputValue = this.inputValue;
+        
         if (inputValue) {
-          dynamicTags.push(inputValue);
+          dynamicItemParameter.attr_vals.push(inputValue);
         }
+
+        // 解构
+        const { attr_id, attr_name, attr_sel, attr_vals } = dynamicItemParameter
+
+        // 修改后的动态参数数据
+        const dynamicData = {
+          attr_name: attr_name,
+          attr_sel: attr_sel,
+          attr_vals: attr_vals.join(',') // 数据类型是以,分割的字符串
+        }
+
+        // 发送修改参数的请求， 第一个参数: 分类id(第三级)，第二参数: 动态参数id， 第三参数: 修改后要提交的数据
+        this.modifyParameters(this.value[2], attr_id, dynamicData)
+
         this.inputVisible = false;
         this.inputValue = '';
       },
