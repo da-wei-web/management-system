@@ -5,7 +5,7 @@ export function addParameters(id, data) {
   return request({
     url: `/categories/${id}/attributes`,
     method: 'post',
-    data
+    data,
   })
 }
 
@@ -25,6 +25,13 @@ export function getGoodsParameters(id, sel) {
     params: {
       sel
     }
+  })
+}
+
+// 根据id获取商品参数数据
+export function getParametersById(id, attrId) {
+  return request({
+    url: `/categories/${id}/attributes/${attrId}`,
   })
 }
 

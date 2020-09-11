@@ -70,7 +70,8 @@
                   icon="el-icon-edit" 
                   circle
                   plain
-                  type="primary">
+                  type="primary"
+                  @click="openEditDynamicParametersDialog(scope.row.cat_id, scope.row.attr_id)">
                 </el-button>
                 <el-button
                   size="mini"
@@ -142,9 +143,18 @@
       name="添加动态参数"
       @cancelDialog="addGoodsDynamicParameters">
     </Dialog>
+    <!-- 编辑动态参数对话框 -->
+    <Dialog 
+      ref="dialogEdit"
+      :dialog-form-visible="dialogFormVisibleEditParameters"
+      :form="form"
+      dialogWidth="35%"
+      name="编辑动态参数"
+      @cancelDialog="editGoodsDynamicParameters">
+    </Dialog>
   </el-card>
 </template>
-// @open="openSetDynamicParametersDialog"
+
 <script>
   import BreadCrumb from 'components/common/BreadCrumb'
 
@@ -154,6 +164,7 @@
   import { getGoodsCategory } from 'network/category'
   import { 
     getGoodsParameters, 
+    getParametersById,
     modifyGoodsParameters,
     addParameters,
     deleteParameters
@@ -201,7 +212,7 @@
         // 动态参数标签属性
         inputVisible: false,
         inputValue: '',
-        // 设置动态参数对话框
+        // 设置动态参数对话框的开关
         dialogFormVisibleAddParameters: false,
         // 添加分类参数
         form: {
@@ -219,30 +230,16 @@
             }
           ]
         },
+        // 编辑参数对话框的开关
+        dialogFormVisibleEditParameters: false,
+        // 保存属性id
+        attr_id: -1,
       }
     },
     created() {
       this.getGoodsCategoryList()
     },
     methods: {
-      // 1.请求分类数据
-      async getGoodsCategoryList(type = 3) {
-        const res = await getGoodsCategory(type)
-        // 通过解构赋值整理数据
-        const {
-          data, 
-          meta: { msg, status}
-        } = res
-
-        // 状态码不为200, 说明未能成功获取分类列表
-        if (status !== 200) {
-          this.$message.warning(msg)
-        } 
-
-        // 状态码为200时, 成功获取分类列表, 保存数据
-        this.options = data
-      },
-
       // 级联选择器选中节点变化时触发
       changeValue() {
         console.log('1')
@@ -282,36 +279,6 @@
           return false
         } else {
           return true
-        }
-      },
-
-      // 获取商品参数的列表 sel -> 'many'动态参数
-      async getGoodsParametersList(id, sel) {
-        const res = await getGoodsParameters(id, sel)
-        
-        const {
-          data, 
-          meta: { msg, status }
-        } = res
-
-        if (status !== 200) {
-          this.$message.warning(msg)
-        }
-        
-        // 参数类型 'only' -> 静态参数 'many' -> 动态参数
-        if (sel === 'only') { // 保存静态参数
-          this.staticParameters = data
-          console.log(this.staticParameters)
-        } else {
-          // sel -> 'many'
-          // attr_vals的值类型转换成数组类型
-          data.forEach(item => {
-            item.attr_vals = item.attr_vals.length === 0 ? [] : item.attr_vals.trim().split(',')
-          })
-
-          // 保存动态参数
-          this.dynamicParameters = data
-          console.log(this.dynamicParameters)
         }
       },
 
@@ -367,19 +334,6 @@
         })
       },
 
-      // 修改参数
-      async modifyParameters(id, attrId, data) {
-        const res = await modifyGoodsParameters(id, attrId, data) 
-        
-        const {
-          meta: { msg, status }
-        } = res
-
-        if (status === 200) {
-          this.$message.success(msg)
-        }
-      },
-
       // 打开设置动态参数对话框
       openSetDynamicParametersDialog() {
         if (!this.value[2]) {
@@ -390,7 +344,7 @@
         this.dialogFormVisibleAddParameters = true
       },
 
-      // 添加动态参数
+      // 提交添加动态参数的数据
       addGoodsDynamicParameters(status) {
         if (status) {
           let dynamicData = { 
@@ -416,6 +370,65 @@
         }
       },
 
+      // 编辑商品参数
+      editGoodsDynamicParameters(status) {
+        if (status) {
+          let dynamicData = { 
+            attr_name: this.form.attr_name,
+            attr_sel: 'many',
+            attr_vals: this.form.attr_vals.trim().split(' ，'), // 将字符串转换为数组
+          }
+
+          // 提交修改商品参数
+          this.modifyParameters(this.value[2], this.attr_id, dynamicData)
+
+          // 更新动态参数列表视图
+          this.getGoodsParametersList(this.value[2], 'many')
+
+          // 关闭编辑商品参数的对话框
+          this.dialogFormVisibleEditParameters = false
+
+          // 因为添加商品参数所绑定的数据form和编辑商品参数所绑定的form是同一个，需要清空表单中的内容
+          this.form.attr_name = ''
+          this.form.attr_vals = ''
+        } else {
+          this.dialogFormVisibleEditParameters = false
+          // 同上
+          this.form.attr_name = ''
+          this.form.attr_vals = ''
+        }
+      },
+
+       // 打开编辑商品参数对话框 
+      openEditDynamicParametersDialog(id, attrId) {
+        // 获取商品参数数据
+        this.getGoodsParametersById(id, attrId)
+
+        // 保存属性id值
+        this.attr_id = attrId
+
+        // 打开编辑动态参数对话框
+        this.dialogFormVisibleEditParameters = true
+      },
+
+      // 请求分类数据
+      async getGoodsCategoryList(type = 3) {
+        const res = await getGoodsCategory(type)
+        // 通过解构赋值整理数据
+        const {
+          data, 
+          meta: { msg, status}
+        } = res
+
+        // 状态码不为200, 说明未能成功获取分类列表
+        if (status !== 200) {
+          this.$message.warning(msg)
+        } 
+
+        // 状态码为200时, 成功获取分类列表, 保存数据
+        this.options = data
+      },
+
       // 添加商品参数 id -> 分类id， data -> attr_name, attr_sel, attr_vals
       async addGoodsParameters(id, data) {
         // 发送添加参数的请求
@@ -430,7 +443,7 @@
         }
       },
 
-      // 删除商品参数
+      // 删除商品参数 id -> 分类ID attrId -> 属性ID
       async deleteGoodsParameters(id, attrId) {
         const res = await deleteParameters(id, attrId)
         
@@ -441,7 +454,66 @@
           // 更新动态参数列表视图
           this.getGoodsParametersList(this.value[2], 'many')
         }
-      }
+      },
+
+      // 获取商品参数的列表 sel -> 'many'动态参数
+      async getGoodsParametersList(id, sel) {
+        const res = await getGoodsParameters(id, sel)
+        
+        const {
+          data, 
+          meta: { msg, status }
+        } = res
+
+        if (status !== 200) {
+          this.$message.warning(msg)
+        }
+        
+        // 参数类型 'only' -> 静态参数 'many' -> 动态参数
+        if (sel === 'only') { // 保存静态参数
+          this.staticParameters = data
+          console.log(this.staticParameters)
+        } else {
+          // sel -> 'many'
+          // attr_vals的值类型转换成数组类型
+          data.forEach(item => {
+            item.attr_vals = item.attr_vals.length === 0 ? [] : item.attr_vals.trim().split(',')
+          })
+
+          // 保存动态参数
+          this.dynamicParameters = data
+          console.log(this.dynamicParameters)
+        }
+      },
+
+      // 根据id获取商品参数
+      async getGoodsParametersById(id, attrId) {
+        const res = await getParametersById(id, attrId)
+        
+        const {
+          data,
+          meta: { msg, status }
+        } = res
+
+        if (status === 200) {
+          this.form.attr_name = data.attr_name
+          // console.log(typeof data.attr_vals)  -> string
+          this.form.attr_vals = data.attr_vals
+        }
+      },
+
+      // 修改参数
+      async modifyParameters(id, attrId, data) {
+        const res = await modifyGoodsParameters(id, attrId, data) 
+        
+        const {
+          meta: { msg, status }
+        } = res
+
+        if (status === 200) {
+          this.$message.success(msg)
+        }
+      },
     }
   }
 </script>
