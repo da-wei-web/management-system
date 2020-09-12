@@ -12,7 +12,8 @@ const Right = () => import('views/rightlist')
 const GoodsList = () => import('views/goodslist/GoodsList')
 const AddGoodsPage = () => import('views/goodslist/AddGoodsPage')
 const EditGoodsPage = () => import('views/goodslist/EditGoodsPage')
-const ParameterList = () => import('views/parameterlist/ParameterList')
+const Parameter = () => import('views/parameter/Parameter')
+const Category = () => import('views/category/Category')
 
 
 Vue.use(VueRouter)
@@ -60,8 +61,13 @@ Vue.use(VueRouter)
         },
         {
           path: 'params',
-          name: 'ParameterList',
-          component: ParameterList
+          name: 'Parameter',
+          component: Parameter
+        },
+        {
+          path: 'categories',
+          name: 'Category',
+          component: Category
         }
       ]
     }
