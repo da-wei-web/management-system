@@ -24,7 +24,7 @@
           <!-- 按钮 -->
           <el-row class="parameter">
             <el-col>
-              <el-button type="danger" @click="openSetDynamicParametersDialog">设置动态参数</el-button>
+              <el-button type="danger" @click="openSetParametersDialog">设置动态参数</el-button>
             </el-col>
           </el-row>
           <!-- 表格 -->
@@ -71,7 +71,7 @@
                   circle
                   plain
                   type="primary"
-                  @click="openEditDynamicParametersDialog(scope.row.cat_id, scope.row.attr_id)">
+                  @click="openEditParametersDialog(scope.row.cat_id, scope.row.attr_id)">
                 </el-button>
                 <el-button
                   size="mini"
@@ -89,7 +89,7 @@
           <!-- 按钮 -->
           <el-row class="parameter">
             <el-col>
-              <el-button type="danger">设置静态参数</el-button>
+              <el-button type="danger" @click="openSetParametersDialog">设置静态参数</el-button>
             </el-col>
           </el-row>
           <!-- 表格 -->
@@ -119,7 +119,8 @@
                   icon="el-icon-edit" 
                   circle
                   plain
-                  type="primary">
+                  type="primary"
+                  @click="openEditParametersDialog(scope.row.cat_id, scope.row.attr_id)">
                 </el-button>
                 <el-button
                   size="mini"
@@ -142,7 +143,7 @@
       :form="form"
       dialogWidth="35%"
       name="添加动态参数"
-      @cancelDialog="addGoodsDynamicParameters">
+      @cancelDialog="setGoodsParameters">
     </Dialog>
     <!-- 编辑动态参数对话框 -->
     <Dialog 
@@ -151,7 +152,7 @@
       :form="form"
       dialogWidth="35%"
       name="编辑动态参数"
-      @cancelDialog="editGoodsDynamicParameters">
+      @cancelDialog="editGoodsParameters">
     </Dialog>
   </el-card>
 </template>
@@ -205,7 +206,7 @@
           children: 'children',
         },
         // 当前的选项卡
-        active: '1',
+        active: 'many',
         // 保存动态参数
         dynamicParameters: [],
         // 保存静态参数
@@ -243,25 +244,24 @@
     methods: {
       // 级联选择器选中节点变化时触发
       changeValue() {
-        console.log('1')
         // 当选择分类后直接显示参数列表
-        this.tabChange('1')
+        console.log(this.active)
+        this.tabChange(this.active)
       },
 
       // 当切换tab时，触发时生效
       tabChange(active) {
         switch (active) {
-          case '1':
+          case 'many':
             // 判断商品分类
             if (this._judgeValue()) { // 请求商品参数列表
               this.getGoodsParametersList(this.value[2], 'many')
-              console.log('2')
             } else {
               return false
             }
 
             break
-          case '2':
+          case 'only':
             // 判断商品分类
             if (this._judgeValue()) {
               this.getGoodsParametersList(this.value[2], 'only')
@@ -336,7 +336,7 @@
       },
 
       // 打开设置动态参数对话框
-      openSetDynamicParametersDialog() {
+      openSetParametersDialog() {
         if (!this.value[2]) {
           this.$message.warning('请选择分类')
           return false
@@ -345,20 +345,22 @@
         this.dialogFormVisibleAddParameters = true
       },
 
-      // 提交添加动态参数的数据
-      addGoodsDynamicParameters(status) {
+      // 提交添加商品参数的数据
+      setGoodsParameters(status) {
         if (status) {
-          let dynamicData = { 
+          this.form.attr_vals = this.active === 'many' ? this.form.attr_vals.trim().split(' ，') : this.form.attr_vals
+
+          let parametersData = { 
             attr_name: this.form.attr_name,
-            attr_sel: 'many',
-            attr_vals: this.form.attr_vals.trim().split(' ，'), // 将字符串转换为数组,在表单控件中需用英文的逗号作为间隔 
+            attr_sel: this.active,
+            attr_vals: this.form.attr_vals, // 将字符串转换为数组,在表单控件中需用英文的逗号作为间隔 
           }
 
-          // 添加商品动态参数
-          this.addGoodsParameters(this.value[2], dynamicData)
+          // 添加商品参数
+          this.addGoodsParameters(this.value[2], parametersData)
 
-          // 更新动态参数列表视图
-          this.getGoodsParametersList(this.value[2], 'many')
+          // 更新参数列表视图
+          this.getGoodsParametersList(this.value[2], this.active)
 
           // 清空form中的数据
           this.form.attr_name = ''
@@ -372,20 +374,24 @@
       },
 
       // 编辑商品参数
-      editGoodsDynamicParameters(status) {
+      async editGoodsParameters(status) {
         if (status) {
-          let dynamicData = { 
+          this.form.attr_vals = this.active === 'many' ? this.form.attr_vals.trim().split(' ，') : this.form.attr_vals
+
+          let parametersData = { 
             attr_name: this.form.attr_name,
-            attr_sel: 'many',
-            attr_vals: this.form.attr_vals.trim().split(' ，'), // 将字符串转换为数组
+            attr_sel: this.active,
+            attr_vals: this.form.attr_vals, // 将字符串转换为数组,在表单控件中需用英文的逗号作为间隔 
           }
 
           // 提交修改商品参数
-          this.modifyParameters(this.value[2], this.attr_id, dynamicData)
-
-          // 更新动态参数列表视图
-          this.getGoodsParametersList(this.value[2], 'many')
-
+          const result = await this.modifyParameters(this.value[2], this.attr_id, dynamicData)
+          
+          if (result === '更新成功') {
+            // 更新动态参数列表视图
+            this.getGoodsParametersList(this.value[2], 'many')
+          }
+          
           // 关闭编辑商品参数的对话框
           this.dialogFormVisibleEditParameters = false
 
@@ -401,7 +407,7 @@
       },
 
        // 打开编辑商品参数对话框 
-      openEditDynamicParametersDialog(id, attrId) {
+      openEditParametersDialog(id, attrId) {
         // 获取商品参数数据
         this.getGoodsParametersById(id, attrId)
 
@@ -514,6 +520,7 @@
 
         if (status === 200) {
           this.$message.success(msg)
+          return msg
         }
       },
     }
