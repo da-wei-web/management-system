@@ -79,7 +79,7 @@
                   icon="el-icon-delete" 
                   circle
                   plain
-                  @click="deleteGoodsParameters(scope.row.cat_id, scope.row.attr_id)">
+                  @click="deleteGoodsParameters(scope.row.cat_id, scope.row.attr_id, scope.row.attr_sel)">
                 </el-button>
               </template>
             </el-table-column>
@@ -126,7 +126,8 @@
                   type="danger"
                   icon="el-icon-delete" 
                   circle
-                  plain>
+                  plain
+                  @click="deleteGoodsParameters(scope.row.cat_id, scope.row.attr_id, scope.row.attr_sel)">
                 </el-button>
               </template>
             </el-table-column>
@@ -444,15 +445,16 @@
       },
 
       // 删除商品参数 id -> 分类ID attrId -> 属性ID
-      async deleteGoodsParameters(id, attrId) {
+      async deleteGoodsParameters(id, attrId, sel) {
         const res = await deleteParameters(id, attrId)
-        
+        console.log(res)
         const { meta: { msg, status } } = res
 
         if (status === 200) {
           this.$message.success(msg)
-          // 更新动态参数列表视图
-          this.getGoodsParametersList(this.value[2], 'many')
+          // 更新动态参数列表视图 sel -> 'many' 或 'only'
+          console.log(sel)
+          this.getGoodsParametersList(this.value[2], sel)
         }
       },
 
