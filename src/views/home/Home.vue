@@ -17,7 +17,8 @@
         <Menu :menus-list="menusList"></Menu>
       </el-aside>
       <el-main class="main">
-        <router-view/>
+        <!-- isRouterAlive用于刷新页面 -->
+        <router-view v-if="isRouterAlive" />
       </el-main>
     </el-container>
   </el-container>
@@ -33,8 +34,15 @@
     components: {
       Menu
     },
+    provide () {
+      return {
+        reload: this.reload
+      }
+    },
     data() {
       return {
+        // 用于刷新页面
+        isRouterAlive: true,
         // 菜单列表数据
         menusList: [],
         // 菜单标题图标
@@ -113,6 +121,14 @@
         })
         .catch(() => {})
       },
+
+      // 刷新页面
+      reload () {
+        this.isRouterAlive = false
+        this.$nextTick(function () {
+          this.isRouterAlive = true
+        })
+      }
     }
   }
 </script>

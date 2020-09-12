@@ -20,7 +20,7 @@
         </el-cascader>
       </el-form-item>
       <el-tabs v-model="active" type="card" @tab-click="tabChange(active)">
-        <el-tab-pane label="动态参数" name="1">
+        <el-tab-pane label="动态参数" name="many">
           <!-- 按钮 -->
           <el-row class="parameter">
             <el-col>
@@ -29,6 +29,7 @@
           </el-row>
           <!-- 表格 -->
           <el-table 
+            ref="table"
             :data="dynamicParameters"
             style="width: 100%">
             <!-- 第一列-展开详情 -->
@@ -85,7 +86,7 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
-        <el-tab-pane label="静态参数" name="2">
+        <el-tab-pane label="静态参数" name="only">
           <!-- 按钮 -->
           <el-row class="parameter">
             <el-col>
@@ -238,6 +239,7 @@
         attr_id: -1,
       }
     },
+    inject: ['reload'],
     created() {
       this.getGoodsCategoryList()
     },
@@ -245,8 +247,15 @@
       // 级联选择器选中节点变化时触发
       changeValue() {
         // 当选择分类后直接显示参数列表
-        console.log(this.active)
-        this.tabChange(this.active)
+        if (this.value.length) {
+          this.tabChange(this.active)
+        } else {
+          this.form.attr_name = ''
+          this.form.attr_vals = ''
+
+          // 刷新当前页面
+          this.reload()
+        }
       },
 
       // 当切换tab时，触发时生效
@@ -376,20 +385,19 @@
       // 编辑商品参数
       async editGoodsParameters(status) {
         if (status) {
-          this.form.attr_vals = this.active === 'many' ? this.form.attr_vals.trim().split(' ，') : this.form.attr_vals
-
           let parametersData = { 
             attr_name: this.form.attr_name,
             attr_sel: this.active,
-            attr_vals: this.form.attr_vals, // 将字符串转换为数组,在表单控件中需用英文的逗号作为间隔 
+            attr_vals: this.form.attr_vals,
           }
 
           // 提交修改商品参数
-          const result = await this.modifyParameters(this.value[2], this.attr_id, dynamicData)
+          console.log(this.value[2])
+          const result = await this.modifyParameters(this.value[2], this.attr_id, parametersData)
           
           if (result === '更新成功') {
             // 更新动态参数列表视图
-            this.getGoodsParametersList(this.value[2], 'many')
+            this.getGoodsParametersList(this.value[2], this.active)
           }
           
           // 关闭编辑商品参数的对话框
