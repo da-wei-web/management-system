@@ -55,7 +55,8 @@
           type="danger"
           icon="el-icon-delete" 
           circle
-          plain>
+          plain
+          @click="deleteGoodsCategory(scope.row.cat_id)">
         </el-button>
       </template>
     </el-table-column>
@@ -107,7 +108,7 @@ import Table from 'components/content/Table'
 const ElTreeGrid = require('element-tree-grid')
 
 import {
-  getGoodsCategory, addCategory
+  getGoodsCategory, addCategory, deleteCategory
 } from 'network/category'
 
 export default {
@@ -222,6 +223,21 @@ export default {
       
       // 关闭添加分类对话框
       this.dialogFormVisibleAddCategories = false
+    },
+
+    // 删除商品分类
+    async deleteGoodsCategory(id) {
+      const res = await deleteCategory(id)
+      console.log(res)
+      const {
+        meta: { msg, status }
+      } = res
+
+      if (status === 200) this.$message.success(msg)
+
+      // 更新视图并返回第一页
+      this.pagenum = 1
+      this.getGoodsCategoryList(this.type, this.pagenum, this.pagesize)
     },
 
     // 获取商品参数列表数据

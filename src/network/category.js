@@ -19,3 +19,12 @@ export function addCategory(data) {
     data,
   })
 }
+
+export function deleteCategory(id) {
+  return request({
+    url: '/categories/' + id,
+    method: 'delete',
+  })
+}
+
+
