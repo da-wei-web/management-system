@@ -27,4 +27,20 @@ export function deleteCategory(id) {
   })
 }
 
+export function getCategoryById(id) {
+  return request({
+    url: `/categories/` + id,
+  })
+}
 
+
+export function editCategory(id, cat_name) {
+  console.log(id, cat_name)
+  return request({
+    url: '/categories/' + id,
+    method: 'put',
+    data: {
+      cat_name
+    }
+  })
+}

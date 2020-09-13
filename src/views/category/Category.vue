@@ -5,7 +5,7 @@
   <!-- 添加分类按钮 -->
   <el-row class="add-cat">
     <el-col>
-      <el-button type="danger" @click="openAddGoodsCategory">添加商品分类</el-button>
+      <el-button type="danger" @click="openAddGoodsCategoryDialog">添加商品分类</el-button>
     </el-col>
   </el-row>
   <!-- 商品分类列表 -->
@@ -48,7 +48,8 @@
           icon="el-icon-edit" 
           circle
           plain
-          type="primary">
+          type="primary"
+          @click="openEditGoodsCategoryDialog(scope.row.cat_id)">
         </el-button>
         <el-button
           size="mini"
@@ -73,7 +74,7 @@
     :total="total">
   </el-pagination>
   <!-- 添加分类对话框 -->
-  <el-dialog title="设置权限" :visible.sync="dialogFormVisibleAddCategories">
+  <el-dialog title="添加商品分类" :visible.sync="dialogFormVisibleAddCategories">
     <el-form 
       label-position="top" 
       label-width="80px" 
@@ -94,8 +95,24 @@
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button @click="dialogFormVisibleRight = false">取 消</el-button>
+      <el-button @click="dialogFormVisibleAddCategories = false">取 消</el-button>
       <el-button type="primary" @click="addGoodsCategory">确 定</el-button>
+    </div>
+  </el-dialog>
+  <!-- 编辑商品分类对话框 -->
+  <el-dialog title="编辑商品分类" :visible.sync="dialogFormVisibleEditCategories">
+    <el-form 
+      label-position="top" 
+      label-width="80px" 
+      :model="form" 
+      style="height: 150px; overflow:auto;">
+      <el-form-item label="分类名称" label-width="80px">
+        <el-input v-model="form.cat_name" autocomplete="off"></el-input>
+      </el-form-item>
+    </el-form>
+    <div slot="footer" class="dialog-footer">
+      <el-button @click="dialogFormVisibleEditCategories = false">取 消</el-button>
+      <el-button type="primary" @click="editGoodsCategory">确 定</el-button>
     </div>
   </el-dialog>
 </el-card>
@@ -108,7 +125,9 @@ import Table from 'components/content/Table'
 const ElTreeGrid = require('element-tree-grid')
 
 import {
-  getGoodsCategory, addCategory, deleteCategory
+  getGoodsCategory, addCategory,
+  deleteCategory, getCategoryById,
+  editCategory
 } from 'network/category'
 
 export default {
@@ -162,6 +181,10 @@ export default {
         children: 'children',
         checkStrictly: true,   // 单选任意一个选项
       },
+      // 编辑分类对话框的开关
+      dialogFormVisibleEditCategories: false,
+      // 商品分类id
+      cat_id: -1,
     }
   },
   created() {
@@ -183,10 +206,16 @@ export default {
     },
 
     // 打开添加商品分类对话框
-    openAddGoodsCategory() {
+    openAddGoodsCategoryDialog() {
       // 获取级联选择器的二级分类数据
       this.getGoodsCategoryList(2)
       this.dialogFormVisibleAddCategories = true
+    },
+
+    // 打开编辑商品分类对话框
+    openEditGoodsCategoryDialog(id) {
+      this.getGoodaCategoryById(id)
+      this.dialogFormVisibleEditCategories = true
     },
 
     // 添加商品分类
@@ -269,21 +298,62 @@ export default {
       // 状态码为200时, 成功获取分类列表, 保存数据
       this.categoriesList = result
     },
+
+    // 根据id获取商品参数数据 id -> 商品分类ID
+    async getGoodaCategoryById(id) {
+      const res = await getCategoryById(id)
+      
+      const {
+        data,
+        meta: { status }
+      } = res
+
+      if (status === 200) {
+        // 保存参数名称
+        this.form.cat_name = data.cat_name
+        // 保存分类id
+        this.cat_id = id
+      }
+    },
+
+    // 编辑商品参数
+    async editGoodsCategory() {
+      // 发送编辑参数的请求
+      const res = await editCategory(this.cat_id, this.form.cat_name)
+      
+      const {
+        meta: { msg, status }
+      } = res
+
+      if (status === 200) {
+        this.$message.success(msg)
+      }
+
+      // 关闭编辑参数对话框
+      this.dialogFormVisibleEditCategories = false
+
+      // 清空表单
+      this.form.cat_name = ''
+
+      // 更新视图
+      this.getGoodsCategoryList(this.type, this.pagenum, this.pagesize)
+      
+    }
   }
 }
 </script>
 
 <style lang="less" scoped>
-.box-card {
-  width: 100%;
-  height: 100%;
+  .box-card {
+    width: 100%;
+    height: 100%;
 
-  .add-cat {
-    margin: 20px 0 10px;
-  }
+    .add-cat {
+      margin: 20px 0 10px;
+    }
 
-  .pagination {
-    margin-top: 10px;
+    .pagination {
+      margin-top: 10px;
+    }
   }
-}
 </style>
