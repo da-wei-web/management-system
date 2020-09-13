@@ -208,7 +208,7 @@ export default {
     // 打开添加商品分类对话框
     openAddGoodsCategoryDialog() {
       // 获取级联选择器的二级分类数据
-      this.getGoodsCategoryList(2)
+      this.getCascaderData(2)
       this.dialogFormVisibleAddCategories = true
     },
 
@@ -274,13 +274,6 @@ export default {
       // 1.请求分类数据
       const res = await getGoodsCategory(type, pagenum, pagesize)
 
-      // 保存级联选择器的数据
-      if (!pagenum || !pagesize) {
-        this.options = res.data
-      }
-
-      console.log(res)
-
       // 通过解构赋值整理数据
       const {
         data: { result, total },
@@ -337,7 +330,20 @@ export default {
 
       // 更新视图
       this.getGoodsCategoryList(this.type, this.pagenum, this.pagesize)
-      
+    },
+
+    // 获取级联选择器数据
+    async getCascaderData(type) {
+      const res = await getGoodsCategory(type)
+
+      const {
+        data,
+        meta: { status }
+      } = res
+
+      if (status === 200) {
+        this.options = data
+      }
     }
   }
 }
