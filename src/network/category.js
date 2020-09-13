@@ -1,9 +1,13 @@
 import { request } from './request'
 
 // 获取商品分类列表
-export function getGoodsCategory(type) {
+export function getGoodsCategory(type, pagenum, pagesize) {
   return request({
     url: '/categories',
-    query: type
+    params: {
+      type,
+      pagenum,
+      pagesize
+    }
   })
 }
