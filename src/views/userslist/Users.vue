@@ -378,6 +378,7 @@
         try {
           // 发送请求
           const res = await getUsersList(query, pagenum, pagesize)
+          console.log(res)
           
           // 处理数据
           const {
@@ -404,7 +405,7 @@
             this.total = total
           }
           
-        } catch(err) {
+        } catch (err) {
           return new Error(err)
         }
         

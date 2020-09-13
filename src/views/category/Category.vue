@@ -12,8 +12,15 @@
   <el-table
     :data="categoriesList"
     style="width: 100%">
-    <!-- 第一列-展开详情 -->
-    
+    <!-- 树形单元格 -->
+    <el-tree-grid 
+      label="分类名称" 
+      prop="cat_name"
+      treeKey="cat_id"
+      parentKey="cat_pid"
+      levelKey="cat_level"
+      childKey="children">
+    </el-tree-grid>
     <!-- 第二列-级别 -->
     <el-table-column 
       label="级别" 
@@ -33,8 +40,6 @@
         <span v-if="scope.row.cat_deleted === true">有效</span>
       </template>
     </el-table-column>
-    <!-- 第四列-角色描述 -->
-    
     <!-- 第五列-操作 -->
     <el-table-column label="操作" width="160">
       <template slot-scope="scope">
@@ -73,6 +78,8 @@
 import BreadCrumb from 'components/common/BreadCrumb'
 import Table from 'components/content/Table'
 
+const ElTreeGrid = require('element-tree-grid')
+
 import {
   getGoodsCategory
 } from 'network/category'
@@ -80,7 +87,8 @@ import {
 export default {
   name: 'Category',
   components: {
-    BreadCrumb
+    BreadCrumb,
+    ElTreeGrid
   },
   data() {
     return {
@@ -137,6 +145,8 @@ export default {
         data: { result, total },
         meta: { msg, status }
       } = res
+
+      console.log(res)
 
       // 状态码不为200, 说明未能成功获取分类列表
       if (status !== 200) {
