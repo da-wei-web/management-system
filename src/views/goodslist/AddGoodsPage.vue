@@ -287,6 +287,8 @@
           return this.$message.error(msg)
         }
 
+        console.log(data)
+
         // 状态码为200时, 成功获取分类列表, 保存数据
         this.options = data
       },

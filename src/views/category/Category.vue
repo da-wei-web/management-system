@@ -5,7 +5,7 @@
   <!-- 添加分类按钮 -->
   <el-row class="add-cat">
     <el-col>
-      <el-button type="danger">添加商品分类</el-button>
+      <el-button type="danger" @click="openAddGoodsCategory">添加商品分类</el-button>
     </el-col>
   </el-row>
   <!-- 商品分类列表 -->
@@ -71,6 +71,32 @@
     layout="total, sizes, prev, pager, next, jumper"
     :total="total">
   </el-pagination>
+  <!-- 添加分类对话框 -->
+  <el-dialog title="设置权限" :visible.sync="dialogFormVisibleAddCategories">
+    <el-form 
+      label-position="top" 
+      label-width="80px" 
+      :model="form" 
+      style="height: 250px; overflow:auto;">
+      <el-form-item label="分类名称" label-width="80px">
+        <el-input v-model="form.cat_name" autocomplete="off"></el-input>
+      </el-form-item>
+      <el-form-item label="商品分类">
+        {{value}}
+        <!-- 联级选择器 -->
+        <el-cascader
+          clearable
+          v-model="value"
+          :options="options"
+          :props="cascaderDefaultOptions">
+        </el-cascader>
+      </el-form-item>
+    </el-form>
+    <div slot="footer" class="dialog-footer">
+      <el-button @click="dialogFormVisibleRight = false">取 消</el-button>
+      <el-button type="primary" @click="addGoodsCategory">确 定</el-button>
+    </div>
+  </el-dialog>
 </el-card>
 </template>
 
@@ -81,7 +107,7 @@ import Table from 'components/content/Table'
 const ElTreeGrid = require('element-tree-grid')
 
 import {
-  getGoodsCategory
+  getGoodsCategory, addCategory
 } from 'network/category'
 
 export default {
@@ -115,6 +141,26 @@ export default {
       total: 0,
       // 分类级别
       type: 3,
+      // 添加分类的对话框开关
+      dialogFormVisibleAddCategories: false,
+      // 表单
+      form: {
+        cat_pid: -1,
+        cat_name: '',
+        cat_level: -1,
+      },
+      // 选择的值
+      value: [],
+      // 渲染联级选择器的可选项数据源
+      options: [],
+      // 联级选择器的配置项
+      cascaderDefaultOptions: {
+        expandTrigger: 'hover',
+        value: 'cat_id',
+        label: 'cat_name',
+        children: 'children',
+        checkStrictly: true,   // 单选任意一个选项
+      },
     }
   },
   created() {
@@ -135,18 +181,66 @@ export default {
       console.log(`当前页: ${val}`);
     },
 
+    // 打开添加商品分类对话框
+    openAddGoodsCategory() {
+      // 获取级联选择器的二级分类数据
+      this.getGoodsCategoryList(2)
+      this.dialogFormVisibleAddCategories = true
+    },
+
+    // 添加商品分类
+    async addGoodsCategory() {
+      // 数据整理
+      if (this.value.length === 0) {
+        // 一级分类
+        this.form.cat_pid = 0
+        this.form.cat_level = 0
+      } else if (this.value.length === 1) {
+        // 二级分类
+        this.form.cat_pid = this.value[0]
+        this.form.cat_level = 1
+      } else if (this.value.length === 2) {
+        // 三级分类
+        this.form.cat_pid = this.value[1]
+        this.form.cat_level = 2
+      }
+
+      if (!this.form.cat_name) this.$message.warning('分类名称不能为空')
+
+      // 发送添加分类的请求
+      const res = await addCategory(this.form)
+
+      const {
+        meta: { msg, status }
+      } = res
+
+      // 添加分类成功
+      if (status === 201) this.$message.success(msg)
+
+      // 更新视图
+      this.getGoodsCategoryList(this.type, this.pagenum, this.pagesize)
+      
+      // 关闭添加分类对话框
+      this.dialogFormVisibleAddCategories = false
+    },
+
     // 获取商品参数列表数据
     async getGoodsCategoryList(type, pagenum, pagesize) {
       // 1.请求分类数据
       const res = await getGoodsCategory(type, pagenum, pagesize)
+
+      // 保存级联选择器的数据
+      if (!pagenum || !pagesize) {
+        this.options = res.data
+      }
+
+      console.log(res)
 
       // 通过解构赋值整理数据
       const {
         data: { result, total },
         meta: { msg, status }
       } = res
-
-      console.log(res)
 
       // 状态码不为200, 说明未能成功获取分类列表
       if (status !== 200) {
