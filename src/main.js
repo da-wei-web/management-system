@@ -9,8 +9,9 @@ import {
   Submenu, MenuItem, Card, Breadcrumb,
   BreadcrumbItem, Table, TableColumn, Switch,
   Pagination, Dialog, Option, Select, 
-  Tag,
-  Tree
+  Tag, Tree, Alert, Steps,
+  Step, Tabs, TabPane, Cascader,
+  CheckboxGroup, Checkbox, Upload
 } from 'element-ui'
 import 'assets/css/reset.css'
 import 'element-ui/lib/theme-chalk/index.css'
@@ -50,6 +51,16 @@ Vue.use(Option)
 Vue.use(Select)
 Vue.use(Tag)
 Vue.use(Tree)
+Vue.use(Alert)
+Vue.use(Steps)
+Vue.use(Step)
+Vue.use(Tabs)
+Vue.use(TabPane)
+Vue.use(Cascader)
+Vue.use(CheckboxGroup)
+Vue.use(Checkbox)
+Vue.use(Upload)
+
 Vue.prototype.$confirm = MessageBox.confirm;
 Vue.prototype.$message = Message
 

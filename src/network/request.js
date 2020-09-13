@@ -1,6 +1,6 @@
 import axios from 'axios'
-// const token = localStorage.getItem('token')
-import { token } from 'common/untils/constant'
+
+
 
 export function request(options) {
   return new Promise((resolve, reject) => {
@@ -14,9 +14,11 @@ export function request(options) {
     instance.interceptors.request.use(config => {
       // 除了登录路由外, 发送请求前需要设置请求头
       if (config.url !== '/login') {
-        config.headers.common['Authorization'] = token;
+        // 这个token需要在此获取
+        const AUTH_TOKEN = localStorage.getItem('token')
+        config.headers.common['Authorization'] = AUTH_TOKEN;
       }
-      // 在发送请求之前做些什么
+      
       return config;
     }, err => {
       // 对请求错误做些什么

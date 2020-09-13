@@ -1,10 +1,10 @@
 <template>
   <el-card class="box-card">
     <!-- 面包屑 -->
-    <BreadCrumb 
+    <bread-crumb 
       :titles-list="titlesList" 
       icon="el-icon-arrow-right">
-    </BreadCrumb>
+    </bread-crumb>
     <!-- 搜索框 -->
     <el-row class="search-row">
       <el-col :span="24">
@@ -30,11 +30,10 @@
     <!-- 列表 -->
     <Table 
       :cell-name="titles"
-      :users-list="usersList" 
-      :message="message"
+      :msg-list="usersList" 
       fbgcolor="#ff4949"
-      @deleteOneUser="deleteOneUser"
-      @openEditUserForm="openEditUserForm(arguments)"
+      @deleteItem="deleteOneUser"
+      @openEditDialog="openEditUserForm(arguments)"
       @changeState="changeState(arguments)"
       @openMatchDialog="openMatchDialog(arguments)">
     </Table>
@@ -140,10 +139,10 @@
         pagesize: 2,
         // 表格表头数据
         titles: [
-          {value: '姓名', width: 100, column_value: 'username'}, 
-          {value: '邮箱', width: 140, column_value: 'email'}, 
-          {value: '电话', width: 120, column_value: 'mobile'}, 
-          {value: '创建日期', width: 120, column_value: 'create_time'}, 
+          {value: '姓名', width: '', column_value: 'username'}, 
+          {value: '邮箱', width: '', column_value: 'email'}, 
+          {value: '电话', width: '', column_value: 'mobile'}, 
+          {value: '创建日期', width: 140, column_value: 'create_time'}, 
         ],
         // 用户列表信息
         usersList: [],
@@ -376,33 +375,40 @@
 
       // 获取用户列表
       async getUsersLt(query, pagenum, pagesize) {
-        // 发送请求
-        const res = await getUsersList(query, pagenum, pagesize)
-        
-        // 处理数据
-        const {
-          meta: {msg, status},
-          data: {users, total}
-        } = res
-
-        if(status !== 200) return new Error('获取失败')
-
-        // 日期格式处理
-        const newUsers = []
-        users.map(item => {
-          // 时间变为毫秒
-          let date = new Date(item.create_time * 1000)
-
-          // 转换日期格式并替换掉create_time中的原始数据
-          item.create_time = formDate(date, 'yyyy-MM-dd')
+        try {
+          // 发送请求
+          const res = await getUsersList(query, pagenum, pagesize)
+          console.log(res)
           
-          // 返回新的数组
-          return newUsers.push(item)
-        })
+          // 处理数据
+          const {
+            meta: {msg, status},
+            data: {users, total}
+          } = res
+
+          if (status === 200) {
+            // 日期格式处理
+            const newUsers = []
+            users.map(item => {
+              // 时间变为毫秒
+              let date = new Date(item.create_time * 1000)
+
+              // 转换日期格式并替换掉create_time中的原始数据
+              item.create_time = formDate(date, 'yyyy-MM-dd')
+              
+              // 返回新的数组
+              return newUsers.push(item)
+            })
+
+            // 保存数据
+            this.usersList = newUsers
+            this.total = total
+          }
+          
+        } catch (err) {
+          return new Error(err)
+        }
         
-        // 保存数据
-        this.usersList = newUsers
-        this.total = total
       },
       
       // 根据id获取用户数据
@@ -461,7 +467,7 @@
   }
 </script>
 
-<style lang="less" sccoped>
+<style lang="less" scoped>
   .box-card {
     width: 100%;
     height: 100%;
