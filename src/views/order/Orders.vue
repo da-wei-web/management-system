@@ -45,11 +45,48 @@
             icon="el-icon-edit" 
             circle
             plain
-            type="primary">
+            type="primary"
+            @click="openEditOrdersDialog">
           </el-button>
         </template>
       </el-table-column>
     </el-table>
+    <!-- 分页 -->
+    <el-pagination
+      class="pagination"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="pagenum"
+      :page-sizes="[6, 9, 12, 15]"
+      :page-size="pagesize"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total">
+    </el-pagination>
+    <!-- 编辑订单的对话框 -->
+    <el-dialog title="编辑商品分类" :visible.sync="dialogFormVisibleEditOrders">
+      <el-form 
+        label-position="top" 
+        label-width="80px" 
+        :model="form" 
+        style="height: 300px; overflow:auto;">
+        <el-form-item label="城市区域" label-width="80px">
+          {{value}}
+          <el-cascader
+            clearable
+            v-model="value"
+            :options="options"
+            :props="cascaderDefaultOptions">
+          </el-cascader>
+        </el-form-item>
+        <el-form-item label="详细地址" label-width="80px">
+          <el-input autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisibleEditOrders = false">取 消</el-button>
+        <el-button type="primary">确 定</el-button>
+      </div>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -59,6 +96,7 @@
   import { getOrders } from 'network/orders'
 
   import { formDate } from 'common/untils/changeDate'
+  import allCities from './cities'
 
   export default {
     name: 'Orders',
@@ -85,9 +123,24 @@
         // 当前页
         pagenum: 1,
         // 每页数据量
-        pagesize: 9,
+        pagesize: 6,
         // 总数据量
         total: -1,
+        // 表单
+        form: {},
+        // 编辑订单对话框的开关
+        dialogFormVisibleEditOrders: false,
+        // 选择的值
+        value: [],
+        // 渲染联级选择器的可选项数据源
+        options: [],
+        // 联级选择器的配置项
+        cascaderDefaultOptions: {
+          expandTrigger: 'hover',
+          value: 'name',
+          label: 'name',
+          children: 'city',
+        },
       }
     },
     // 过滤器
@@ -104,10 +157,30 @@
       this.getOrdersList(this.pagenum, this.pagesize)
     },
     methods: {
-      // 1. 获取订单数据列表
+      // 改变一页显示的数据量
+      handleSizeChange(val) {
+        this.pagesize = val
+        this.getGoodsCategoryList(this.type, this.pagenum, this.pagesize)
+        // console.log(`每页 ${val} 条`);
+      },
+
+      // 改变当前页
+      handleCurrentChange(val) {
+        this.pagenum = val
+        this.getGoodsCategoryList(this.type, this.pagenum, this.pagesize)
+        // console.log(`当前页: ${val}`);
+      },
+
+      // 打开编辑订单对话框
+      openEditOrdersDialog() {
+        this.options = allCities
+        this.dialogFormVisibleEditOrders = true
+      },
+
+      // 获取订单数据列表
       async getOrdersList(pagenum, pagesize) {
         const res = await getOrders(pagenum, pagesize)
-        console.log(res)
+
         const {
           data: { goods, total },
           meta: { status }
@@ -126,5 +199,9 @@
   .box-card {
     width: 100%;
     height: 100%;
+
+    .pagination {
+      margin-top: 10px;
+    }
   }
 </style>
