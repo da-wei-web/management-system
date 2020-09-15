@@ -14,6 +14,7 @@ const AddGoodsPage = () => import('views/goodslist/AddGoodsPage')
 const EditGoodsPage = () => import('views/goodslist/EditGoodsPage')
 const Parameter = () => import('views/parameter/Parameter')
 const Category = () => import('views/category/Category')
+const Orders = () => import('views/order/Orders')
 
 
 Vue.use(VueRouter)
@@ -68,6 +69,11 @@ Vue.use(VueRouter)
           path: 'categories',
           name: 'Category',
           component: Category
+        },
+        {
+          path: 'orders',
+          name: 'Orders',
+          component: Orders
         }
       ]
     }
