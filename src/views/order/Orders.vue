@@ -46,7 +46,7 @@
             circle
             plain
             type="primary"
-            @click="openEditOrdersDialog">
+            @click="openEditOrdersDialog()">
           </el-button>
         </template>
       </el-table-column>
@@ -63,23 +63,25 @@
       :total="total">
     </el-pagination>
     <!-- 编辑订单的对话框 -->
-    <el-dialog title="编辑商品分类" :visible.sync="dialogFormVisibleEditOrders">
+    <el-dialog title="编辑商品分类" @click="addressDialogClosed" :visible.sync="dialogFormVisibleEditOrders">
       <el-form 
         label-position="top" 
         label-width="80px" 
-        :model="form" 
+        :model="form"
+        :rules="addressRules"
+        ref="addressFormRef" 
         style="height: 300px; overflow:auto;">
-        <el-form-item label="城市区域" label-width="80px">
-          {{value}}
+        <el-form-item label="省市区" prop="value" label-width="80px">
+          {{form.value}}
           <el-cascader
             clearable
-            v-model="value"
+            v-model="form.value"
             :options="options"
             :props="cascaderDefaultOptions">
           </el-cascader>
         </el-form-item>
-        <el-form-item label="详细地址" label-width="80px">
-          <el-input autocomplete="off"></el-input>
+        <el-form-item label="详细地址" prop="address" label-width="80px">
+          <el-input v-model="form.address"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -93,7 +95,7 @@
 <script>
   import BreadCrumb from 'components/common/BreadCrumb'
 
-  import { getOrders } from 'network/orders'
+  import { getOrders, getOrderById } from 'network/orders'
 
   import { formDate } from 'common/untils/changeDate'
   import allCities from './cities'
@@ -120,6 +122,8 @@
         ],
         // 订单列表数据
         ordersList: [],
+        // 搜索框用于双向绑定的数据
+        message: '',
         // 当前页
         pagenum: 1,
         // 每页数据量
@@ -127,19 +131,26 @@
         // 总数据量
         total: -1,
         // 表单
-        form: {},
+        form: {
+          value: [],
+          address: ''
+        },
+        // 表单验证
+        addressRules: {
+          value: [
+            { required: true, message: '请选择省市区县', trigger: 'blur' }
+          ],
+          address: [
+            { required: true, message: '请输入详细地址', trigger: 'blur' }
+          ]
+        },
         // 编辑订单对话框的开关
         dialogFormVisibleEditOrders: false,
-        // 选择的值
-        value: [],
         // 渲染联级选择器的可选项数据源
         options: [],
         // 联级选择器的配置项
         cascaderDefaultOptions: {
           expandTrigger: 'hover',
-          value: 'name',
-          label: 'name',
-          children: 'city',
         },
       }
     },
@@ -154,20 +165,20 @@
       }
     },
     created() {
-      this.getOrdersList(this.pagenum, this.pagesize)
+      this.getOrdersList(this.message, this.pagenum, this.pagesize)
     },
     methods: {
       // 改变一页显示的数据量
       handleSizeChange(val) {
         this.pagesize = val
-        this.getGoodsCategoryList(this.type, this.pagenum, this.pagesize)
+        this.getOrdersList(this.message, this.pagenum, this.pagesize)
         // console.log(`每页 ${val} 条`);
       },
 
       // 改变当前页
       handleCurrentChange(val) {
         this.pagenum = val
-        this.getGoodsCategoryList(this.type, this.pagenum, this.pagesize)
+        this.getOrdersList(this.message, this.pagenum, this.pagesize)
         // console.log(`当前页: ${val}`);
       },
 
@@ -178,8 +189,8 @@
       },
 
       // 获取订单数据列表
-      async getOrdersList(pagenum, pagesize) {
-        const res = await getOrders(pagenum, pagesize)
+      async getOrdersList(query, pagenum, pagesize) {
+        const res = await getOrders(query, pagenum, pagesize)
 
         const {
           data: { goods, total },
@@ -190,7 +201,11 @@
           this.ordersList = goods
           this.total = total
         }
-      }
+      },
+
+      addressDialogClosed () {
+        this.$refs.addressFormRef.resetFields()
+      },
     }
   }
 </script>
@@ -199,6 +214,15 @@
   .box-card {
     width: 100%;
     height: 100%;
+
+    .search-row {
+      margin: 20px 0;
+
+      .input-with-select {
+        width: 400px;
+        background-color: #fff;
+      }
+    }
 
     .pagination {
       margin-top: 10px;
