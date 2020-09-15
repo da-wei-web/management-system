@@ -15,69 +15,74 @@ const EditGoodsPage = () => import('views/goodslist/EditGoodsPage')
 const Parameter = () => import('views/parameter/Parameter')
 const Category = () => import('views/category/Category')
 const Orders = () => import('views/order/Orders')
-
+const DataReport = () => import('views/reports/DataReport')
 
 Vue.use(VueRouter)
 
-  const routes = [
-    {
-      path: '/login',
-      name: 'Login',
-      component: Login
-    },
-    {
-      path: '/',
-      name: 'Home',
-      component: Home,
-      children: [
-        {
-          path: 'users',
-          name: 'Users',
-          component: Users,
-        },
-        {
-          path: 'roles',
-          name: 'Role',
-          component: Role
-        },
-        {
-          path: 'rights',
-          name: 'Right',
-          component: Right
-        },
-        {
-          path: 'goods',
-          name: 'GoodsList',
-          component: GoodsList
-        },
-        {
-          path: 'addgoods',
-          name: 'AddGoodsPage',
-          component: AddGoodsPage
-        },
-        {
-          path: 'editgoods',
-          name: 'EditGoodsPage',
-          component: EditGoodsPage
-        },
-        {
-          path: 'params',
-          name: 'Parameter',
-          component: Parameter
-        },
-        {
-          path: 'categories',
-          name: 'Category',
-          component: Category
-        },
-        {
-          path: 'orders',
-          name: 'Orders',
-          component: Orders
-        }
-      ]
-    }
-  ]
+const routes = [
+  {
+    path: '/login',
+    name: 'Login',
+    component: Login
+  },
+  {
+    path: '/',
+    name: 'Home',
+    component: Home,
+    children: [
+      {
+        path: 'users',
+        name: 'Users',
+        component: Users,
+      },
+      {
+        path: 'roles',
+        name: 'Role',
+        component: Role
+      },
+      {
+        path: 'rights',
+        name: 'Right',
+        component: Right
+      },
+      {
+        path: 'goods',
+        name: 'GoodsList',
+        component: GoodsList
+      },
+      {
+        path: 'addgoods',
+        name: 'AddGoodsPage',
+        component: AddGoodsPage
+      },
+      {
+        path: 'editgoods',
+        name: 'EditGoodsPage',
+        component: EditGoodsPage
+      },
+      {
+        path: 'params',
+        name: 'Parameter',
+        component: Parameter
+      },
+      {
+        path: 'categories',
+        name: 'Category',
+        component: Category
+      },
+      {
+        path: 'orders',
+        name: 'Orders',
+        component: Orders
+      },
+      {
+        path: 'reports',
+        name: 'DataReport',
+        component: DataReport
+      }
+    ]
+  }
+]
 
 const router = new VueRouter({
   mode: 'history',
